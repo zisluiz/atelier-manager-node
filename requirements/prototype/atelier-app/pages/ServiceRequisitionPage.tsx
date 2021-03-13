@@ -7,27 +7,17 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
 import AddBoxIcon from '@material-ui/icons/AddBox';
-import EditIcon from '@material-ui/icons/Edit';
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import Paper from '@material-ui/core/Paper';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import MonetizationOnIcon from '@material-ui/icons/MonetizationOn';
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import CategoryIcon from '@material-ui/icons/Category';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
 import Box from '@material-ui/core/Box';
-import { ClothDialog, useClothDialogControl, ClothDialogOptions } from 'src/ui/dialogs/ClothDialog';
 import CurrencyRealInput from 'src/ui/components/CurrencyRealInput';
-import CurrencyRealOutput from 'src/ui/components/CurrencyRealOutput';
-import CategoryListOutput from 'src/ui/components/CategoryListOutput';
+import ClothTable from 'src/ui/tables/ClothTable';
 import Controller from 'src/controller/Controller';
-import { Customer } from 'model/Customer';
+import Customer from 'src/model/Customer';
 
 export default function ServiceRequisitionPage() {
   const controller = new Controller();
@@ -65,11 +55,6 @@ export default function ServiceRequisitionPage() {
     };
   }
 
-  function handleSaveCloth() {
-   console.log(clothDialogOptions.data.editingCloth); 
-   clothDialogOptions.handleClose();
-  }
-
   const inputCustomerRef = useRef('');
   const [tabIndex, setTabIndex] = React.useState(0);
   var selectedCustomer:Customer = null;
@@ -78,13 +63,12 @@ export default function ServiceRequisitionPage() {
     setTabIndex(newValue);
   };
 
-  const clothDialogOptions:ClothDialogOptions = useClothDialogControl(controller.serviceTypes);  
+  console.log('Service requisition loaded');
+
+  //const clothDialogOptions:ClothDialogOptions = useClothDialogControl(controller.serviceTypes, handleSaveCloth);  
   
   return (
     <Container component="main" maxWidth="lg">
-      <ClothDialog isShowing={clothDialogOptions.isShowing} handleClose={clothDialogOptions.handleClose} 
-        data={clothDialogOptions.data} handleSave={handleSaveCloth} changeCloth={clothDialogOptions.changeCloth} />
-
       <form>
         <Typography variant="h4" align="center" gutterBottom>
           Requisição de serviço
@@ -139,7 +123,6 @@ export default function ServiceRequisitionPage() {
               variant="outlined"
               type="date"
               fullWidth
-              defaultValue={ new Date() }
               InputLabelProps={{
                 shrink: true,
               }}
@@ -176,61 +159,8 @@ export default function ServiceRequisitionPage() {
 
               <TabPanel value={tabIndex} index={0}>
 
-              <Container maxWidth="lg">
-                <Button variant="contained" color="secondary" component="span" onClick={ clothDialogOptions.openNewCloth }> 
-                  Nova peça
-                </Button>
+                <ClothTable clothes={controller.clothes} serviceTypes={controller.serviceTypes} />
 
-                  <TableContainer component={Paper}>                      
-                        <Table size="medium" aria-label="Lista de peças">
-                          <TableHead>
-                            <TableRow>
-                              <TableCell>Nome da peça</TableCell>
-                              <TableCell align="right">Quantidade</TableCell>
-                              <TableCell align="right">Preço Unitário (R$)</TableCell>
-                              <TableCell align="center">Tipos de serviços</TableCell>
-                              <TableCell align="center">Etapas</TableCell>
-                              <TableCell align="center">Opções</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {controller.clothes.map((row) => (
-                              <TableRow key={row.name}>
-                                <TableCell component="th" scope="row">
-                                  {row.name}
-                                </TableCell>                                                    
-                                <TableCell align="right">{row.quantity}</TableCell>
-                                <TableCell align="right">
-                                  <CurrencyRealOutput value={row.price} />
-                                </TableCell>
-                                <TableCell><CategoryListOutput data={row.serviceTypes} /></TableCell>
-                                <TableCell>{row.steps.map(step => step.name).join(', ')}</TableCell>
-                                <TableCell align="center">
-
-                                  <Grid container>
-                                    <Grid item xs={4}>
-                                      <IconButton aria-label="verEtapas" title="Ver etapas desta peça" color="secondary">
-                                        <FormatListNumberedIcon />
-                                      </IconButton> 
-                                    </Grid>                                  
-                                    <Grid item xs={4}>
-                                      <IconButton aria-label="edit" title="Editar peça" color="secondary">
-                                        <EditIcon />
-                                      </IconButton> 
-                                    </Grid>
-                                    <Grid item xs={4}>
-                                        <IconButton aria-label="delete" title="Excluir peça" color="secondary" >
-                                          <DeleteForeverIcon />
-                                        </IconButton> 
-                                    </Grid>
-                                  </Grid>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </Container>
               </TabPanel>
               <TabPanel value={tabIndex} index={1}>
                 Page Two

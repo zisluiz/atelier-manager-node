@@ -11,6 +11,7 @@ const IntegerInput = (props: any) => {
             thousandSeparator="."
             decimalSeparator=","
             decimalScale={0}
+            allowNegative={false}
             fullWidth  />  
     );
 }

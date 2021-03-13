@@ -1,8 +1,6 @@
 import React from 'react';
-import Box from '@material-ui/core/Box';
 import Chip from '@material-ui/core/Chip';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { redirect } from 'next/dist/next-server/server/api-utils';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -20,21 +18,21 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const CategoryListOutput = ({data}) => { 
+const CategoryListOutput = ({categories}) => { 
     const classes = useStyles();
 
     return (
-        <Box component="ul" className={classes.root}>
-          {data.map((data) => {
+        <ul className={classes.root}>
+          {categories.map((category) => {
             return (
-              <li key={data.name}>
-                <Chip style={{backgroundColor: data.color}}
-                  label={data.name}
+              <li key={category.name}>
+                <Chip style={{backgroundColor: category.color}}
+                  label={category.name}
                 />
               </li>
             );
           })}
-        </Box>
+        </ul>
       );
 }
 

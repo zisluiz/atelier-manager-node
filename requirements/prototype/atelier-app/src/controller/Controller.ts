@@ -24,8 +24,8 @@ export default class ServiceRequisitionController {
         const steps1:Step[] = [ new Step('Atendimento'), new Step('Lavagem de tecido'), new Step('Modelagem'), new Step('Corte'), new Step('Costura'), new Step('Entrega') ];
         const steps2:Step[] = [ new Step('Atendimento'), new Step('Desmanche'), new Step('Costura'), new Step('Entrega') ];
             
-        this.clothes = [ new Cloth('Camisa Branca', 3, 40.0, [ serviceTypeModeling, serviceTypeCustomMade ], steps1 ),
-                          new Cloth('Calça', 1, 20.0, [ serviceTypeFix ], steps2 ) ];
+        this.clothes = [ new Cloth(1, 'Camisa Branca', 3, 40.0, [ serviceTypeModeling, serviceTypeCustomMade ], steps1 ),
+                          new Cloth(2, 'Calça', 1, 20.0, [ serviceTypeFix ], steps2 ) ];
     }
     
 }
