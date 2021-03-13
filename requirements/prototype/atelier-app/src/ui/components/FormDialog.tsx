@@ -67,23 +67,23 @@ const DialogActions = withStyles((theme: Theme) => ({
   },
 }))(MuiDialogActions);
 
-interface DialogFormProps {
+interface FormDialogProps {
   children: any,
-  isShowing:boolean,
+  open:boolean,
   title:string,
   idForm: string,
   handleSave:Function,
   handleClose:Function
 }
 
-const DialogForm = (props:DialogFormProps) => {
+const FormDialog = (props:FormDialogProps) => {
   
-  if (!props.isShowing)
+  if (!props.open)
     return null;
 
   return(
     <div>
-      <Dialog onClose={() => props.handleClose()} aria-labelledby="customized-dialog-title" open={props.isShowing}>
+      <Dialog onClose={() => props.handleClose()} aria-labelledby="customized-dialog-title" open={props.open}>
         <DialogTitle id="customized-dialog-title" onClose={() => props.handleClose()}>
           {props.title}
         </DialogTitle>
@@ -103,4 +103,4 @@ const DialogForm = (props:DialogFormProps) => {
   );  
 }
 
-export default DialogForm;
+export default FormDialog;

@@ -8,7 +8,7 @@ import { Cloth } from 'src/model/Cloth';
 import { ServiceType } from 'src/model/ServiceType';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import DialogForm from '../components/DialogForm';
+import FormDialog from '../components/FormDialog';
 
 const validationSchema = yup.object({
     name: yup
@@ -29,7 +29,7 @@ const validationSchema = yup.object({
 });
 
 interface ClothDialogProps {
-  isShowing:boolean,
+  open:boolean,
   title:string,
   selectedCloth:Cloth,
   optionsServiceTypes:ServiceType[],
@@ -39,7 +39,7 @@ interface ClothDialogProps {
 
 const ClothDialog = (props:ClothDialogProps) => {
   
-  if (!props.isShowing)
+  if (!props.open)
     return null;
 
     let editingCloth = props.selectedCloth;
@@ -61,7 +61,7 @@ const ClothDialog = (props:ClothDialogProps) => {
 
   return(
     <div>
-      <DialogForm isShowing={props.isShowing} idForm="formDialogCloth" 
+      <FormDialog open={props.open} idForm="formDialogCloth" 
           title={props.title} handleSave={props.handleSave} handleClose={props.handleClose}  >
 
         <form id="formDialogCloth" onSubmit={formik.handleSubmit} noValidate>        
@@ -114,7 +114,7 @@ const ClothDialog = (props:ClothDialogProps) => {
           </Grid>
         </form>
 
-      </DialogForm>
+      </FormDialog>
     </div>
   );  
 }
