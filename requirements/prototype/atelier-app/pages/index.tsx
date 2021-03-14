@@ -2,8 +2,16 @@ import Head from 'next/head'
 //import styles from '../styles/Home.module.css'
 import ServiceRequisitionPage from './ServiceRequisitionPage'
 import React from 'react';
+import { Service } from 'src/model/Service';
 
 export default function Home() {
+  const [service, setService] = React.useState(new Service(0, null, null, "", null, 0.00, []));
+
+  function handleServiceUpdate(service:Service) {
+    console.log("aa");
+    setService(service);
+  }
+
   return (
     <div>
       <Head>
@@ -13,9 +21,12 @@ export default function Home() {
 
       <main>
       <div>
-        
-          <ServiceRequisitionPage />
-        
+          {service.id == 0 &&
+            <ServiceRequisitionPage service={service} handleServiceUpdate={handleServiceUpdate} />
+          }
+          {service.id > 0 &&
+            "AAAAAAA"
+          }
       </div>
         
       </main>

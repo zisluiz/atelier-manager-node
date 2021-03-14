@@ -13,30 +13,34 @@ import IconButton from '@material-ui/core/IconButton';
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import Typography from '@material-ui/core/Typography';
 import CurrencyRealOutput from 'src/ui/components/CurrencyRealOutput';
 import CategoryListOutput from 'src/ui/components/CategoryListOutput';
 import ClothDialog from 'src/ui/dialogs/ClothDialog';
 import { Cloth } from 'src/model/Cloth';
 import { ServiceType } from 'src/model/ServiceType';
-import AlertDialog from '../components/AlertDialog';
+import AlertDialog from 'src/ui/components/AlertDialog';
+import * as ArraysUtil from 'src/util/ArraysUtil';
+import * as IdentityUtil from 'src/util/IdentityUtil';
+import EmptyTableData from '../components/EmptyTableData';
+import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
 interface ClothTableProps {
+    serviceTypes:ServiceType[],
     clothes:Cloth[],
-    serviceTypes:ServiceType[]
+    optionsClothes:Cloth[],
+    handleClothSelection:Function,
+    handleUpdateClothes: Function,
+    controller: ServiceRequisitionController
 }
 
 const ClothTable = (props:ClothTableProps) => {    
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-    const [selectedRow, setSelectedRow] = React.useState();
-    const [clothes, setClothes] = React.useState(props.clothes);
+    const [selectedRow, setSelectedRow] = React.useState(null);
+    const [clothToRemove, setClothToRemove] = React.useState(null);
     const [messageAlertDialog, setMessageAlertDialog] = React.useState("");
     const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false);
 
     let isEdittingRow = false;
-    let clothToRemove:Cloth = null;
-
-    console.log("Loading clothTable");
 
     function openNewCloth() {
         isEdittingRow = false;
@@ -50,30 +54,30 @@ const ClothTable = (props:ClothTableProps) => {
         setIsDialogOpen(true);
     }
 
-    function handleSaveCloth(clothToSave:Cloth) {
-        let newClothes = clothes.slice();
+    function handleSaveCloth(clothToSave:any) {
+        let newClothes = null;
 
-        if (selectedRow == null) {
-            clothToSave.id = Math.floor(Math.random() * 10000);            
-            newClothes.push(clothToSave);
-            setClothes(newClothes);            
+        if (selectedRow.id == 0) {            
+            clothToSave.id = IdentityUtil.generateId();
+            newClothes = ArraysUtil.addObject(props.clothes, new Cloth(clothToSave.id, clothToSave.name, clothToSave.quantity, clothToSave.price, clothToSave.serviceTypes, clothToSave.steps));
         } else {
-            const index = newClothes.indexOf(selectedRow);
-            const changedCloth = {...selectedRow, ...clothToSave};
+            const changedCloth = {...selectedRow};
+            changedCloth.name = clothToSave.name;
+            changedCloth.quantity = clothToSave.quantity;
+            changedCloth.price = clothToSave.price;
+            changedCloth.serviceTypes = clothToSave.serviceTypes;
+            changedCloth.steps = clothToSave.steps;            
 
-            newClothes.splice(index, 1);
-            newClothes.splice(index, 0, changedCloth);
-            setClothes(newClothes);  
+            newClothes = ArraysUtil.updateObject(props.clothes, selectedRow, changedCloth);                        
         }
 
+        props.handleUpdateClothes(newClothes);
         handleCloseDialog();
     } 
 
     function removeCloth() {
-        let newClothes = clothes.slice();
-        newClothes.splice(newClothes.indexOf(clothToRemove), 1);
-        setClothes(newClothes);
-        clothToRemove = null;
+        const newClothes = ArraysUtil.removeObject(props.clothes, clothToRemove);
+        props.handleUpdateClothes(newClothes);
         closeAlertDialog();
     }
     
@@ -82,10 +86,11 @@ const ClothTable = (props:ClothTableProps) => {
     }
 
     function createNewCloth():Cloth {
-        return new Cloth(0, '', 1, 0.00, [], null);
+        return new Cloth(0, '', 1, 0.00, [], []);
     } 
 
     function alertDialog(row:Cloth) {
+        setClothToRemove(row);
         setMessageAlertDialog(`Deseja realmente remover a peça \"${row.name}\"?`);
         setIsAlertDialogOpen(true);
     }
@@ -94,10 +99,15 @@ const ClothTable = (props:ClothTableProps) => {
         setIsAlertDialogOpen(false);
     }
 
+    function showSteps(row:Cloth) {
+        props.handleClothSelection(row);
+    }    
+
     return(
         <Container maxWidth="lg">
             <ClothDialog open={isDialogOpen} selectedCloth={selectedRow} optionsServiceTypes={props.serviceTypes} 
                     handleSave={handleSaveCloth} handleClose={handleCloseDialog} 
+                    optionsClothes={props.optionsClothes}
                     title={!selectedRow ? "" : (selectedRow.id == 0 ? "Cadastrar nova peça" : "Editar peça \"" + selectedRow.name + "\"")} />
 
             <Button variant="contained" color="secondary" component="span" onClick={ openNewCloth } >Nova Peça</Button>
@@ -111,21 +121,14 @@ const ClothTable = (props:ClothTableProps) => {
                     <TableCell align="right">Preço Unitário (R$)</TableCell>
                     <TableCell align="center">Tipos de serviços</TableCell>
                     <TableCell align="center">Etapas</TableCell>
-                    <TableCell align="center">Opções</TableCell>
+                    <TableCell align="center" width={180}>Opções</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {!clothes || clothes.length == 0 && (
-                        <TableRow>
-                            <TableCell colSpan={6}>                           
-                                <Typography variant="h6" align="center" gutterBottom>
-                                    Nenhuma peça cadastrada!
-                                </Typography> 
-                            </TableCell>
-                        </TableRow>                                    
-                    )}
-                    {clothes && clothes.length > 0 && clothes.map((row) => (
-                    <TableRow key={row.name}>
+                    <EmptyTableData data={props.clothes} message="Nenhuma peça cadastrada!" colSpan={6} />
+
+                    {props.clothes && props.clothes.length > 0 && props.clothes.map((row) => (
+                    <TableRow key={row.id}>
                         <TableCell scope="row">
                         {row.name}
                         </TableCell>                                                    
@@ -139,10 +142,10 @@ const ClothTable = (props:ClothTableProps) => {
 
                         <Grid container>
                             <Grid item xs={4}>
-                            <IconButton aria-label="verEtapas" title="Ver etapas desta peça" color="secondary">
+                            <IconButton aria-label="verEtapas" title="Ver etapas desta peça" color="secondary" onClick={ () => showSteps(row) }>
                                 <FormatListNumberedIcon />
                             </IconButton> 
-                            </Grid>                                  
+                            </Grid> 
                             <Grid item xs={4}>
                             <IconButton aria-label="edit" title="Editar peça" color="secondary" onClick={ () => openEditCloth(row) }>
                                 <EditIcon />
@@ -150,7 +153,7 @@ const ClothTable = (props:ClothTableProps) => {
                             </Grid>
                             <Grid item xs={4}>                                
                                 <IconButton aria-label="delete" title="Excluir peça" color="secondary" 
-                                    onClick={ () => {clothToRemove = row; alertDialog(row) } }>
+                                    onClick={ () => alertDialog(row) }>
                                     <DeleteForeverIcon />
                                 </IconButton>
                             </Grid>
@@ -162,7 +165,8 @@ const ClothTable = (props:ClothTableProps) => {
                 </Table>
             </TableContainer>
 
-            <AlertDialog open={isAlertDialogOpen} title="Confirmação de exclusão" message={messageAlertDialog} handleClose={closeAlertDialog} handleConfirm={ removeCloth } />
+            <AlertDialog open={isAlertDialogOpen} title="Confirmação de exclusão" message={messageAlertDialog} 
+                    handleClose={closeAlertDialog} handleConfirm={ removeCloth } />
         </Container>
     );
 };

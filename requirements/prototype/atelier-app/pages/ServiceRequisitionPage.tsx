@@ -7,69 +7,114 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
 import AddBoxIcon from '@material-ui/icons/AddBox';
-import Paper from '@material-ui/core/Paper';
-import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import MonetizationOnIcon from '@material-ui/icons/MonetizationOn';
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import CategoryIcon from '@material-ui/icons/Category';
-import Box from '@material-ui/core/Box';
+import moment from 'moment';
 import CurrencyRealInput from 'src/ui/components/CurrencyRealInput';
 import ClothTable from 'src/ui/tables/ClothTable';
-import Controller from 'src/controller/Controller';
+import StepTable from 'src/ui/tables/StepTable';
+import ResourceTable from 'src/ui/tables/ResourceTable';
+import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 import Customer from 'src/model/Customer';
+import { TabComponent, TabPanel, a11yPropsTab }  from 'src/ui/components/TabComponent';
+import { Service } from 'src/model/Service';
+import { FastField, useFormik } from 'formik';
+import * as yup from 'yup';
+import { BaseService } from 'src/model/BaseService';
+import { Cloth } from 'src/model/Cloth';
+import CurrencyRealOutput from 'src/ui/components/CurrencyRealOutput';
+import { Step } from 'src/model/Step';
+import * as IdentityUtil from 'src/util/IdentityUtil';
 
-export default function ServiceRequisitionPage() {
-  const controller = new Controller();
+const validationSchema = yup.object({
+  baseService: yup
+  .object()
+  .required("Base de serviço é obrigatório!")
+  .typeError("Base de serviço é obrigatório!"),
+  customer: yup
+  .object()
+  .required("Cliente é obrigatório!")
+  .typeError("Cliente é obrigatório!"),
+  price: yup
+  .number()
+  .min(0.00, "O preço deve ser maior ou igual a zero!")
+  .required("Preço é obrigatório!"),
+  deadline: yup
+  .string()
+  .required("Prazo de conclusão é obrigatório!")
+});
 
-  interface TabPanelProps {
-    children?: React.ReactNode;
-    index: any;
-    value: any;
-  }
-  
-  function TabPanel(props: TabPanelProps) {
-    const { children, value, index, ...other } = props;
-  
-    return (
-      <div
-        role="tabpanel"
-        hidden={value !== index}
-        id={`simple-tabpanel-${index}`}
-        aria-labelledby={`simple-tab-${index}`}
-        {...other}
-      >
-        {value === index && (          
-          <Box p={3}>
-            {children}
-          </Box>
-        )}
-      </div>
-    );
-  }
-  
-  function a11yProps(index: any) {
-    return {
-      id: `simple-tab-${index}`,
-      'aria-controls': `simple-tabpanel-${index}`,
-    };
-  }
+interface ServiceRequisitionPageProps {
+  service: Service,
+  handleServiceUpdate: Function
+}
 
+export default function ServiceRequisitionPage(props: ServiceRequisitionPageProps) {
   const inputCustomerRef = useRef('');
   const [tabIndex, setTabIndex] = React.useState(0);
-  var selectedCustomer:Customer = null;
-
-  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+  const [selectedCloth, setSelectedCloth] = React.useState<null | Cloth>(null);
+  const [selectedStep, setSelectedStep] = React.useState<null | Step>(null);
+  const [controller, setController] = React.useState(new ServiceRequisitionController());
+    
+  const handleChangeTab = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTabIndex(newValue);
   };
 
-  console.log('Service requisition loaded');
+  function handleClothSelection(cloth:Cloth) {
+    setSelectedCloth(cloth);
+    setTabIndex(1);
+  }
 
-  //const clothDialogOptions:ClothDialogOptions = useClothDialogControl(controller.serviceTypes, handleSaveCloth);  
+  function handleStepSelection(step:Step) {
+    setSelectedStep(step);
+    setTabIndex(2);
+  }
+
+  function handleLoadSelectedBaseService(baseService: BaseService) {    
+    formik.setFieldValue("baseService", baseService);
+    const clothes = baseService ? baseService.clothes : null;
+    props.handleServiceUpdate({...props.service, clothes: clothes});
+  }
+
+  function handleUpdateClothes(clothes: Cloth[]) {
+    props.handleServiceUpdate({...props.service, clothes: clothes});
+  }
+
+  function getPrecoBaseTotal() {
+    let total = 0;
+
+    props.service.clothes.forEach( (cloth:Cloth) => total += cloth.quantity * cloth.price );
+
+    return total;
+  }
+
+  const formik = useFormik({    
+    initialValues: { 
+      baseService: null,
+      customer: null,
+      comments: "",
+      price: 0.00,
+      deadline: moment(new Date()).format("YYYY-MM-DD")
+    },    
+    validationSchema: validationSchema,
+    onSubmit: (values) => {   
+      console.log("submiting");
+      let newService:Service = {...props.service};
+      newService.baseService = values.baseService;
+      newService.customer = values.customer;
+      newService.comments = values.comments;
+      newService.price = values.price;
+      newService.deadline = moment(values.deadline, "YYYY-MM-DD").toDate();
+      newService.id = IdentityUtil.generateId();
+      props.handleServiceUpdate(newService);
+    }
+  });  
   
   return (
     <Container component="main" maxWidth="lg">
-      <form>
+      <form id="formService" onSubmit={formik.handleSubmit} noValidate> 
         <Typography variant="h4" align="center" gutterBottom>
           Requisição de serviço
         </Typography>
@@ -79,9 +124,13 @@ export default function ServiceRequisitionPage() {
             <Autocomplete
               id="autocomplete-base-services"
               noOptionsText="Serviço não encontrado!"                  
+              value={formik.values.baseService}
+              onChange={(event, value: BaseService) => { handleLoadSelectedBaseService(value); }}               
               options={controller.baseServices}
               getOptionLabel={(option) => option.name}
-              renderInput={(params) => <TextField {...params} label="Base de Serviço:" variant="outlined" required/>}
+              renderInput={(params) => <TextField {...params} autoFocus label="Base de Serviço:" variant="outlined" required
+              error={formik.touched.baseService && Boolean(formik.errors.baseService)}
+              helperText={formik.touched.baseService && formik.errors.baseService}   />}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -91,28 +140,33 @@ export default function ServiceRequisitionPage() {
                     id="autocomplete-customers"  
                     noOptionsText="Cliente não encontrado!"                    
                     freeSolo={true}   
-                    value={selectedCustomer}          
+                    value={formik.values.customer}
+                    onChange={(event, value: Customer) => { formik.setFieldValue('customer', value); }}          
                     options={controller.customers}                    
                     getOptionLabel={(option) => option.name}
-                    renderInput={(params) => <TextField {...params} inputRef={inputCustomerRef} label="Cliente:" variant="outlined" required />}
+                    renderInput={(params) => <TextField {...params} inputRef={inputCustomerRef} label="Cliente:" variant="outlined" required
+                      error={formik.touched.customer && Boolean(formik.errors.customer)}
+                      helperText={formik.touched.customer && formik.errors.customer}   />}
                   />
               </Grid>
               <Grid item xs={1}>      
                 <IconButton aria-label="add" title="Criar novo cliente" color="secondary" 
-                    onClick={() => { let newCustomer = { name: inputCustomerRef.current.value}; controller.customers.push(newCustomer); selectedCustomer = newCustomer; }} >
+                    onClick={() => { let newCustomer = { name: inputCustomerRef.current.value}; controller.customers.push(newCustomer); formik.setFieldValue('customer', newCustomer); }} >
                   <AddBoxIcon fontSize="large" />
                 </IconButton> 
               </Grid>
             </Grid>           
           </Grid>
-          <Grid item xs={12} sm={6}>
-              <TextField        
+          <Grid item xs={12} sm={6}>              
+               <TextField        
                 multiline={true}
                 variant="outlined"
                 rows="4"      
                 rowsMax="6"
                 id="observacoes"
-                name="observacoes"
+                value={formik.values.comments}
+                onChange={formik.handleChange }            
+                name="comments"
                 label="Observações"
                 fullWidth />
           </Grid>           
@@ -120,6 +174,11 @@ export default function ServiceRequisitionPage() {
             <TextField
               id="inputDeadline"
               label="Prazo de conclusão:"
+              required
+              value={formik.values.deadline}
+              onChange={ (event) => { formik.setFieldValue('deadline', event.target.value); } }  
+              error={formik.touched.deadline && Boolean(formik.errors.deadline)}
+              helperText={formik.touched.deadline && formik.errors.deadline}              
               variant="outlined"
               type="date"
               fullWidth
@@ -129,9 +188,13 @@ export default function ServiceRequisitionPage() {
             />
           </Grid>
           <Grid item xs={6} sm={3}> 
-            <CurrencyRealInput id="inputPrice" label="Preço:" required />
+            <CurrencyRealInput id="inputPrice" label="Preço:" required 
+                value={formik.values.price}
+                onValueChange={ (values: any) => formik.setFieldValue('price', values.floatValue) }
+                error={formik.touched.price && Boolean(formik.errors.price)}
+                helperText={formik.touched.price && formik.errors.price} />
           </Grid>
-          <Grid item xs={12} sm={12}> 
+          <Grid item xs={8}> 
           <input
             style={{ display: "none" }}
             id="contained-button-file"
@@ -143,34 +206,48 @@ export default function ServiceRequisitionPage() {
             </Button>
           </label>
           </Grid>
-          <Grid item xs={12} sm={12}>
-            <Paper square>
-              <Tabs
-                value={tabIndex}
-                onChange={handleChange}
-                variant="fullWidth"
-                indicatorColor="secondary"
-                textColor="secondary"
-                aria-label="Especificação dos trabalhos">
-                <Tab icon={<CategoryIcon />} label="Peças" {...a11yProps(0)} />
-                <Tab icon={<FormatListNumberedIcon />} label="Etapas" disabled {...a11yProps(1)} />
-                <Tab icon={<MonetizationOnIcon />} label="Recursos" disabled {...a11yProps(2)} />
-              </Tabs>
+          <Grid item xs={4}> 
+              <Typography variant="h5" align="center" gutterBottom>
+              Preço base (R$): <CurrencyRealOutput value={getPrecoBaseTotal()} />
+              </Typography>          
+              
+          </Grid>          
+          <Grid item xs={12}>
 
-              <TabPanel value={tabIndex} index={0}>
-
-                <ClothTable clothes={controller.clothes} serviceTypes={controller.serviceTypes} />
-
-              </TabPanel>
-              <TabPanel value={tabIndex} index={1}>
-                Page Two
-              </TabPanel>
-              <TabPanel value={tabIndex} index={2}>
-                Page Three
-              </TabPanel>              
-            </Paper>          
+            <TabComponent ariaLabel="Especificação dos trabalhos"
+              tabIndex={tabIndex} handleChange={handleChangeTab}
+              tabs={
+               [
+                  <Tab icon={<CategoryIcon />} label="Peças" key={0} {...a11yPropsTab(0)} />,
+                  <Tab icon={<FormatListNumberedIcon />} label="Etapas" disabled={selectedCloth == null} key={1} {...a11yPropsTab(1)} />,
+                  <Tab icon={<MonetizationOnIcon />} label="Recursos" disabled={selectedStep == null} {...a11yPropsTab(2)} key={2} />
+                ]                
+              }
+              tabPanels={
+                [
+                  <TabPanel value={tabIndex} index={0} key={0}>                    
+                    <ClothTable serviceTypes={controller.serviceTypes} handleClothSelection={handleClothSelection} controller={controller} 
+                      clothes={props.service.clothes} handleUpdateClothes={handleUpdateClothes}
+                      optionsClothes={controller.clothes} />
+                  </TabPanel>,
+                  <TabPanel value={tabIndex} index={1} key={1}>
+                    <StepTable cloth={selectedCloth} optionsBaseSteps={controller.baseSteps} handleStepSelection={handleStepSelection} controller={controller} />
+                  </TabPanel>,
+                  <TabPanel value={tabIndex} index={2} key={2}>
+                    <ResourceTable step={selectedStep} optionsBaseResources={controller.baseResources} controller={controller} />
+                  </TabPanel> 
+                ]
+              }
+            
+            />
           </Grid>
-        </Grid>
+
+          <Grid item xs={12}>
+            <Button color="primary" type="submit" variant="contained" form="formService">
+              Salvar
+            </Button>           
+          </Grid>
+        </Grid>       
       </form>
     </Container>
   );

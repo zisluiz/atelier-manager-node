@@ -94,7 +94,7 @@ const FormDialog = (props:FormDialogProps) => {
           
         </DialogContent>
         <DialogActions>
-          <Button color="primary" type="submit" form={props.idForm}>
+          <Button color="primary" type="submit" form={props.idForm} variant="contained">
             Salvar
           </Button>
         </DialogActions>

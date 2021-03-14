@@ -38,10 +38,10 @@ export default function AlertDialog(props:AlertDialogProps) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary" autoFocus>
+          <Button onClick={handleClose} color="primary" autoFocus variant="contained">
             Não
           </Button>
-          <Button onClick={handleConfirm} color="primary" >
+          <Button onClick={handleConfirm} color="primary" variant="contained">
             Confirmar
           </Button>
         </DialogActions>
