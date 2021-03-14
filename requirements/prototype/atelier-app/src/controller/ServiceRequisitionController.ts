@@ -1,4 +1,4 @@
-import Customer from 'src/model/Customer';
+import { Customer } from 'src/model/Customer';
 import { BaseService } from 'src/model/BaseService';
 import { ServiceType } from 'src/model/ServiceType';
 import { Step } from 'src/model/Step';
@@ -59,13 +59,18 @@ export default class ServiceRequisitionController {
             new BaseService('Ajuste de calça', [clothCalca]), new BaseService('Barra de saia', [clothSaia]), new BaseService('Sob-medida e ajuste', [clothVestido, clothSaia])];
     }
     
-    public updateClothSteps(clothToUpdate:Cloth, steps: Step[]) {
-        const persistedCloth = this.clothes.filter((cloth:Cloth) => cloth.id == clothToUpdate.id)[0];
+    public updateClothSteps(clothToUpdate:Cloth | null, steps: Step[]) {
+        if (!clothToUpdate)
+            return;
 
+        const persistedCloth = this.clothes.filter((cloth:Cloth) => cloth.id == clothToUpdate.id)[0];
         persistedCloth.steps = steps;
     }
 
-    public updateStepResources(stepToUpdate:Step, resources: Resource[]) {
+    public updateStepResources(stepToUpdate:Step | null, resources: Resource[]) {
+        if (!stepToUpdate)
+            return;
+
         const persistedCloth = this.clothes.filter((cloth:Cloth) => cloth.steps && cloth.steps.filter((step:Step) => step.id == stepToUpdate.id))[0];
         const persistedStep = persistedCloth.steps && persistedCloth.steps.filter((step:Step) => step.id == stepToUpdate.id)[0];
 

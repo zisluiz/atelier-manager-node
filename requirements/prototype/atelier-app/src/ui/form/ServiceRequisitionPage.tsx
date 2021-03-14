@@ -12,15 +12,15 @@ import MonetizationOnIcon from '@material-ui/icons/MonetizationOn';
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import CategoryIcon from '@material-ui/icons/Category';
 import moment from 'moment';
+import { useFormik } from 'formik';
 import CurrencyRealInput from 'src/ui/components/CurrencyRealInput';
 import ClothTable from 'src/ui/tables/ClothTable';
 import StepTable from 'src/ui/tables/StepTable';
 import ResourceTable from 'src/ui/tables/ResourceTable';
 import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
-import Customer from 'src/model/Customer';
+import { Customer } from 'src/model/Customer';
 import { TabComponent, TabPanel, a11yPropsTab }  from 'src/ui/components/TabComponent';
 import { Service } from 'src/model/Service';
-import { FastField, useFormik } from 'formik';
 import * as yup from 'yup';
 import { BaseService } from 'src/model/BaseService';
 import { Cloth } from 'src/model/Cloth';
@@ -52,7 +52,7 @@ interface ServiceRequisitionPageProps {
 }
 
 export default function ServiceRequisitionPage(props: ServiceRequisitionPageProps) {
-  const inputCustomerRef = useRef('');
+  const inputCustomerRef = useRef<HTMLInputElement>();
   const [tabIndex, setTabIndex] = React.useState(0);
   const [selectedCloth, setSelectedCloth] = React.useState<null | Cloth>(null);
   const [selectedStep, setSelectedStep] = React.useState<null | Step>(null);
@@ -72,7 +72,7 @@ export default function ServiceRequisitionPage(props: ServiceRequisitionPageProp
     setTabIndex(2);
   }
 
-  function handleLoadSelectedBaseService(baseService: BaseService) {    
+  function handleLoadSelectedBaseService(baseService: BaseService | null) {    
     formik.setFieldValue("baseService", baseService);
     const clothes = baseService ? baseService.clothes : null;
     props.handleServiceUpdate({...props.service, clothes: clothes});
@@ -90,17 +90,16 @@ export default function ServiceRequisitionPage(props: ServiceRequisitionPageProp
     return total;
   }
 
-  const formik = useFormik({    
+  const formik = useFormik<{ baseService: BaseService | null, customer: Customer | null, comments: string, price: number, deadline: string}>({    
     initialValues: { 
       baseService: null,
       customer: null,
       comments: "",
       price: 0.00,
-      deadline: moment(new Date()).format("YYYY-MM-DD")
+      deadline: moment(props.service.deadline).format("YYYY-MM-DD")
     },    
     validationSchema: validationSchema,
-    onSubmit: (values) => {   
-      console.log("submiting");
+    onSubmit: (values: any) => {  
       let newService:Service = {...props.service};
       newService.baseService = values.baseService;
       newService.customer = values.customer;
@@ -125,7 +124,7 @@ export default function ServiceRequisitionPage(props: ServiceRequisitionPageProp
               id="autocomplete-base-services"
               noOptionsText="Serviço não encontrado!"                  
               value={formik.values.baseService}
-              onChange={(event, value: BaseService) => { handleLoadSelectedBaseService(value); }}               
+              onChange={(event: any, value: BaseService | null) => { handleLoadSelectedBaseService(value); }}               
               options={controller.baseServices}
               getOptionLabel={(option) => option.name}
               renderInput={(params) => <TextField {...params} autoFocus label="Base de Serviço:" variant="outlined" required
@@ -141,7 +140,7 @@ export default function ServiceRequisitionPage(props: ServiceRequisitionPageProp
                     noOptionsText="Cliente não encontrado!"                    
                     freeSolo={true}   
                     value={formik.values.customer}
-                    onChange={(event, value: Customer) => { formik.setFieldValue('customer', value); }}          
+                    onChange={(event: any, value: string | Customer | null) => { formik.setFieldValue('customer', value); }}          
                     options={controller.customers}                    
                     getOptionLabel={(option) => option.name}
                     renderInput={(params) => <TextField {...params} inputRef={inputCustomerRef} label="Cliente:" variant="outlined" required
@@ -151,7 +150,7 @@ export default function ServiceRequisitionPage(props: ServiceRequisitionPageProp
               </Grid>
               <Grid item xs={1}>      
                 <IconButton aria-label="add" title="Criar novo cliente" color="secondary" 
-                    onClick={() => { let newCustomer = { name: inputCustomerRef.current.value}; controller.customers.push(newCustomer); formik.setFieldValue('customer', newCustomer); }} >
+                    onClick={() => { if (!inputCustomerRef.current) return; let newCustomer = { name: inputCustomerRef.current.value}; controller.customers.push(newCustomer); formik.setFieldValue('customer', newCustomer); }} >
                   <AddBoxIcon fontSize="large" />
                 </IconButton> 
               </Grid>

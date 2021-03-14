@@ -25,7 +25,7 @@ import EmptyTableData from '../components/EmptyTableData';
 import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
 interface StepTableProps {
-    cloth:Cloth,
+    cloth:Cloth | null,
     optionsBaseSteps:Step[],
     handleStepSelection:Function,
     controller:ServiceRequisitionController
@@ -33,9 +33,9 @@ interface StepTableProps {
 
 const StepTable = (props:StepTableProps) => {    
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-    const [selectedRow, setSelectedRow] = React.useState(null);
-    const [stepToRemove, setStepToRemove] = React.useState(null);
-    const [steps, setSteps] = React.useState(props.cloth.steps);
+    const [selectedRow, setSelectedRow] = React.useState<Step | null>(null);
+    const [stepToRemove, setStepToRemove] = React.useState<Step | null>(null);
+    const [steps, setSteps] = React.useState(props.cloth ? props.cloth.steps : []);
     const [messageAlertDialog, setMessageAlertDialog] = React.useState("");
     const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false);
 
@@ -55,6 +55,9 @@ const StepTable = (props:StepTableProps) => {
 
     function handleSaveStep(stepToSave:Step) {
         let newSteps = null;
+
+        if (!selectedRow)
+            throw new Error('Objeto etapa não pode ser nulo!');
 
         if (selectedRow.id == 0) {
             stepToSave.id = IdentityUtil.generateId();            
@@ -106,7 +109,7 @@ const StepTable = (props:StepTableProps) => {
     return(
         <Container maxWidth="lg">
             <Typography variant="h4" align="center" gutterBottom>
-                Peça: {props.cloth.name}
+                Peça: {props.cloth && props.cloth.name}
             </Typography> 
 
             <StepDialog open={isDialogOpen} selectedStep={selectedRow} optionsSteps={props.optionsBaseSteps} 
@@ -125,7 +128,7 @@ const StepTable = (props:StepTableProps) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    <EmptyTableData data={steps} message={`Nenhuma etapa cadastrada para a peça \"${props.cloth.name}\"!`} colSpan={3} />
+                    <EmptyTableData data={steps} message={`Nenhuma etapa cadastrada para a peça \"${props.cloth && props.cloth.name}\"!`} colSpan={3} />
 
                     {steps && steps.length > 0 && steps.map((row) => (
                     <TableRow key={row.id}>

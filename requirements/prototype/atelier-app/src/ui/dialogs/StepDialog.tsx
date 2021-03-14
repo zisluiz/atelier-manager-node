@@ -6,6 +6,7 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import FormDialog from '../components/FormDialog';
 import { Step } from 'src/model/Step';
+import { Resource } from 'src/model/Resource';
 
 const validationSchema = yup.object({
     name: yup
@@ -16,7 +17,7 @@ const validationSchema = yup.object({
 interface StepDialogProps {
   open:boolean,
   title:string,
-  selectedStep:Step,
+  selectedStep:Step | null,
   optionsSteps:Step[],
   handleSave:Function,
   handleClose:Function
@@ -29,11 +30,11 @@ const StepDialog = (props:StepDialogProps) => {
 
     let editingStep = props.selectedStep;
 
-    const formik = useFormik({    
+    const formik = useFormik<{ selectedStepToCopy: Step | null, name: string, resources: Resource[] }>({    
       initialValues: { 
         selectedStepToCopy: null,
-        name: editingStep.name,
-        resources: editingStep.resources
+        name: editingStep ? editingStep.name : "",
+        resources: editingStep ? editingStep.resources : []
       },    
       validationSchema: validationSchema,
       onSubmit: (values) => {
@@ -42,7 +43,7 @@ const StepDialog = (props:StepDialogProps) => {
       }
     });
 
-  function handleCopySelectedStep(step:Step) {
+  function handleCopySelectedStep(step:Step | null) {
     formik.setValues({ selectedStepToCopy: step, name: step ? step.name : "", resources: step ? step.resources : [] });
   }
 
@@ -56,7 +57,7 @@ const StepDialog = (props:StepDialogProps) => {
               <Grid item xs={12}> 
                 <Autocomplete                       
                   value={formik.values.selectedStepToCopy}
-                  onChange={(event, value: Step) => { handleCopySelectedStep(value); }} 
+                  onChange={(event, value: Step | null) => { handleCopySelectedStep(value); }} 
                   id="autocomplete-steps-copy"
                   noOptionsText="Etapa não encontrada!"  
                   options={props.optionsSteps}

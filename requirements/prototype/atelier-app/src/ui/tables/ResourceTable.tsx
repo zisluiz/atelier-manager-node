@@ -18,21 +18,22 @@ import ResourceDialog from 'src/ui/dialogs/ResourceDialog';
 import { Step } from 'src/model/Step';
 import * as ArraysUtil from 'src/util/ArraysUtil';
 import * as IdentityUtil from 'src/util/IdentityUtil';
-import { CostType, Resource } from 'src/model/Resource';
+import { CostType, Resource, getCostByTypeName } from 'src/model/Resource';
 import EmptyTableData from '../components/EmptyTableData';
 import CurrencyRealOutput from '../components/CurrencyRealOutput';
+import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
 interface ResourceTableProps {
-    step:Step,
+    step:Step | null,
     optionsBaseResources:Resource[],
     controller:ServiceRequisitionController
 }
 
-const StepTable = (props:ResourceTableProps) => {    
+const ResourceTable = (props:ResourceTableProps) => {    
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-    const [selectedRow, setSelectedRow] = React.useState(null);
-    const [resourceToRemove, setResourceToRemove] = React.useState(null);
-    const [resources, setResources] = React.useState(props.step.resources);
+    const [selectedRow, setSelectedRow] = React.useState<Resource | null>(null);
+    const [resourceToRemove, setResourceToRemove] = React.useState<Resource | null>(null);
+    const [resources, setResources] = React.useState(props.step ? props.step.resources : []);
     const [messageAlertDialog, setMessageAlertDialog] = React.useState("");
     const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false);
 
@@ -53,12 +54,15 @@ const StepTable = (props:ResourceTableProps) => {
     function handleSaveResource(resourceToSave:any) {
         let newResources = null;
 
+        if (!selectedRow)
+            throw new Error('Objeto recurso não pode ser nulo!');
+
         if (selectedRow.id == 0) {
             resourceToSave.id = IdentityUtil.generateId();   
-            resourceToSave = new Resource(resourceToSave.id, resourceToSave.name, resourceToSave.cost, CostType[resourceToSave.costType], resourceToSave.defaultSpendTime);         
+            resourceToSave = new Resource(resourceToSave.id, resourceToSave.name, resourceToSave.cost, getCostByTypeName(resourceToSave.costType), resourceToSave.defaultSpendTime);         
             newResources = ArraysUtil.addObject(resources, resourceToSave);            
         } else {            
-            resourceToSave = new Resource(resourceToSave.id, resourceToSave.name, resourceToSave.cost, CostType[resourceToSave.costType], resourceToSave.defaultSpendTime);         
+            resourceToSave = new Resource(selectedRow.id, resourceToSave.name, resourceToSave.cost, getCostByTypeName(resourceToSave.costType), resourceToSave.defaultSpendTime);         
             newResources = ArraysUtil.updateObject(resources, selectedRow, resourceToSave);
         }
 
@@ -95,7 +99,7 @@ const StepTable = (props:ResourceTableProps) => {
     return(
         <Container maxWidth="lg">
             <Typography variant="h4" align="center" gutterBottom>
-                Etapa: {props.step.name}
+                Etapa: {props.step && props.step.name}
             </Typography> 
 
             <ResourceDialog open={isDialogOpen} selectedResource={selectedRow} optionsResources={props.optionsBaseResources} 
@@ -115,7 +119,7 @@ const StepTable = (props:ResourceTableProps) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    <EmptyTableData data={resources} message={`Nenhum recurso cadastrado para a etapa \"${props.step.name}\"!`} colSpan={4} />
+                    <EmptyTableData data={resources} message={`Nenhum recurso cadastrado para a etapa \"${props.step && props.step.name}\"!`} colSpan={4} />
 
                     {resources && resources.length > 0 && resources.map((row) => (
                     <TableRow key={row.id}>
@@ -151,4 +155,4 @@ const StepTable = (props:ResourceTableProps) => {
     );
 };
 
-export default StepTable;
+export default ResourceTable;

@@ -9,6 +9,7 @@ import { ServiceType } from 'src/model/ServiceType';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import FormDialog from '../components/FormDialog';
+import { Step } from 'src/model/Step';
 
 const validationSchema = yup.object({
     name: yup
@@ -31,7 +32,7 @@ const validationSchema = yup.object({
 interface ClothDialogProps {
   open:boolean,
   title:string,
-  selectedCloth:Cloth,
+  selectedCloth:Cloth | null,
   optionsServiceTypes:ServiceType[],
   optionsClothes:Cloth[],
   handleSave:Function,
@@ -45,14 +46,14 @@ const ClothDialog = (props:ClothDialogProps) => {
 
     let editingCloth = props.selectedCloth;
 
-    const formik = useFormik({    
+    const formik = useFormik<{ selectedClothToCopy: Cloth | null, name: string, quantity: number, price: number, serviceTypes: ServiceType[], steps: Step[] }>({    
       initialValues: { 
         selectedClothToCopy: null,
-        name: editingCloth.name,
-        quantity: editingCloth.quantity,
-        price: editingCloth.price,
-        serviceTypes: editingCloth.serviceTypes,
-        steps: editingCloth.steps
+        name: editingCloth ? editingCloth.name : "",
+        quantity: editingCloth ? editingCloth.quantity : 1,
+        price: editingCloth ? editingCloth.price : 0.00,
+        serviceTypes: editingCloth ? editingCloth.serviceTypes : [],
+        steps: editingCloth ? editingCloth.steps : []
       },    
       validationSchema: validationSchema,
       onSubmit: (values) => {      
@@ -61,9 +62,9 @@ const ClothDialog = (props:ClothDialogProps) => {
       }
     });
 
-    function handleCopySelectedCloth(cloth:Cloth) {
+    function handleCopySelectedCloth(cloth:Cloth | null) {
       formik.setValues({ selectedClothToCopy: cloth, name: cloth ? cloth.name : "", quantity: cloth ? cloth.quantity : 1, 
-        price: cloth ? cloth.quantity : 0.00, serviceTypes: cloth ? cloth.serviceTypes : [], steps: cloth ? cloth.steps : [] });
+        price: cloth ? cloth.price : 0.00, serviceTypes: cloth ? cloth.serviceTypes : [], steps: cloth ? cloth.steps : [] });
     }    
 
   return(
@@ -76,7 +77,7 @@ const ClothDialog = (props:ClothDialogProps) => {
             <Grid item xs={12}> 
               <Autocomplete                       
                 value={formik.values.selectedClothToCopy}
-                onChange={(event, value: Cloth) => { handleCopySelectedCloth(value); }} 
+                onChange={(event, value: Cloth | null) => { handleCopySelectedCloth(value); }} 
                 id="autocomplete-cloths-copy"
                 noOptionsText="Roupa não encontrada!"  
                 options={props.optionsClothes}

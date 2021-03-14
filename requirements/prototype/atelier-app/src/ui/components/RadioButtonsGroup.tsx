@@ -25,7 +25,7 @@ export default function RadioButtonsGroup(props: RadioButtonsGroupProps) {
       <FormLabel component="legend">{props.label}</FormLabel>
       <RadioGroup aria-label={props.ariaLabel} row name={props.name} value={props.selected} onChange={handleChange}>
           {props.options && props.options.length > 0 && props.options.map((option) => {                            
-            return <FormControlLabel key={option.value} value={option.value} control={<Radio />} label={option.label}/>
+            return <FormControlLabel key={option.value} value={option.value} control={<Radio key={option.value} />} label={option.label}/>
           })}
       </RadioGroup>
     </FormControl>

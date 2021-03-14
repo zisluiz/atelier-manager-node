@@ -1,6 +1,13 @@
 export enum CostType {
-    BY_HOUR = 0,
-    FIXED = 1
+    BY_HOUR = "BY_HOUR",
+    FIXED = "FIXED"
+}
+
+export function getCostByTypeName(costType: string):CostType {
+    if (costType == "BY_HOUR")
+        return CostType.BY_HOUR;
+    else
+        return CostType.FIXED;
 }
 
 export function getCostTypeName(costType: CostType) {

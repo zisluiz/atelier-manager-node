@@ -1,3 +1,3 @@
-export default class Customer {
+export class Customer {
     constructor(public name: string) {};
 }

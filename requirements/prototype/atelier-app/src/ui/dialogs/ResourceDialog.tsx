@@ -5,7 +5,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import FormDialog from '../components/FormDialog';
-import { CostType, Resource, getCostTypeName } from 'src/model/Resource';
+import { CostType, Resource, getCostTypeName, getCostByTypeName } from 'src/model/Resource';
 import CurrencyRealInput from '../components/CurrencyRealInput';
 import RadioButtonsGroup from '../components/RadioButtonsGroup';
 import * as EnumUtil from 'src/util/EnumUtil';
@@ -26,7 +26,7 @@ const validationSchema = yup.object({
 interface ResourceDialogProps {
   open:boolean,
   title:string,
-  selectedResource:Resource,
+  selectedResource:Resource | null,
   optionsResources:Resource[],
   handleSave:Function,
   handleClose:Function
@@ -38,15 +38,17 @@ const ResourceDialog = (props:ResourceDialogProps) => {
     return null;
 
     let editingResource = props.selectedResource;
-    const optionsCostTypes = EnumUtil.getKeyArray(CostType).map((costType) => { return { value: costType, label: getCostTypeName(CostType[costType])} });
 
-    const formik = useFormik({    
+    const costTypesAsString = EnumUtil.getKeyArray(CostType);    
+    const optionsCostTypes = costTypesAsString.map((costType: string) => { return { value: costType, label: getCostTypeName(getCostByTypeName(costType))} });
+    
+    const formik = useFormik< {selectedResourceToCopy: Resource | null, name: string, cost: number, costType: string, defaultSpendTime: string | null | undefined} >({    
       initialValues: { 
         selectedResourceToCopy: null,
-        name: editingResource.name,
-        cost: editingResource.cost,
-        costType: CostType[editingResource.costType],
-        defaultSpendTime: editingResource.defaultSpendTime,
+        name: editingResource ? editingResource.name : "",
+        cost: editingResource ? editingResource.cost : 0.00,
+        costType: editingResource ? getCostByTypeName(editingResource.costType) : getCostTypeName(CostType.FIXED),
+        defaultSpendTime: editingResource ? editingResource.defaultSpendTime : "",
       },    
       validationSchema: validationSchema,
       onSubmit: (values) => {
@@ -55,7 +57,7 @@ const ResourceDialog = (props:ResourceDialogProps) => {
       }
     });
 
-  function handleCopySelectedResource(resource:Resource) {
+  function handleCopySelectedResource(resource:Resource | null) {
     formik.setValues({ selectedResourceToCopy: resource, name: resource ? resource.name : "", cost: resource ? resource.cost : 0.00, 
       costType: resource ? CostType[resource.costType] : CostType[CostType.FIXED], defaultSpendTime: resource ? resource.defaultSpendTime : "" });
   }
@@ -70,7 +72,7 @@ const ResourceDialog = (props:ResourceDialogProps) => {
               <Grid item xs={12}> 
                 <Autocomplete                       
                   value={formik.values.selectedResourceToCopy}
-                  onChange={(event, value: Resource) => { handleCopySelectedResource(value); }} 
+                  onChange={(event, value: Resource | null) => { handleCopySelectedResource(value); }} 
                   id="autocomplete-resources-copy"
                   noOptionsText="Recurso não encontrado!"  
                   options={props.optionsResources}

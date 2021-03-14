@@ -18,12 +18,19 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const CategoryListOutput = ({categories}) => { 
+interface CategoryListOutputProps {
+  categories: any[]
+}
+
+const CategoryListOutput = (props: CategoryListOutputProps) => { 
     const classes = useStyles();
+
+    if (!props.categories || props.categories.length == 0)
+      return null;
 
     return (
         <ul className={classes.root}>
-          {categories.map((category) => {
+          {props.categories.map((category: any) => {
             return (
               <li key={category.name}>
                 <Chip style={{backgroundColor: category.color}}

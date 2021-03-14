@@ -35,8 +35,8 @@ interface ClothTableProps {
 
 const ClothTable = (props:ClothTableProps) => {    
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-    const [selectedRow, setSelectedRow] = React.useState(null);
-    const [clothToRemove, setClothToRemove] = React.useState(null);
+    const [selectedRow, setSelectedRow] = React.useState<Cloth | null>(null);
+    const [clothToRemove, setClothToRemove] = React.useState<Cloth | null>(null);
     const [messageAlertDialog, setMessageAlertDialog] = React.useState("");
     const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false);
 
@@ -56,6 +56,9 @@ const ClothTable = (props:ClothTableProps) => {
 
     function handleSaveCloth(clothToSave:any) {
         let newClothes = null;
+
+        if (!selectedRow)
+            throw new Error('Objeto roupa não pode ser nula!');
 
         if (selectedRow.id == 0) {            
             clothToSave.id = IdentityUtil.generateId();

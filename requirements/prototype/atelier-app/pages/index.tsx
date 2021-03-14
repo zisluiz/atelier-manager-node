@@ -1,14 +1,13 @@
 import Head from 'next/head'
 //import styles from '../styles/Home.module.css'
-import ServiceRequisitionPage from './ServiceRequisitionPage'
+import ServiceRequisitionPage from 'src/ui/form/ServiceRequisitionPage'
 import React from 'react';
 import { Service } from 'src/model/Service';
 
 export default function Home() {
-  const [service, setService] = React.useState(new Service(0, null, null, "", null, 0.00, []));
+  const [service, setService] = React.useState<Service>(new Service(0, null, null, "", new Date(), 0.00, []));
 
   function handleServiceUpdate(service:Service) {
-    console.log("aa");
     setService(service);
   }
 

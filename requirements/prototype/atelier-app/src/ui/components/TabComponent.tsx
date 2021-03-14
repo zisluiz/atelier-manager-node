@@ -21,7 +21,7 @@ interface TabProps {
   ariaLabel: string,
   tabs: any,
   tabPanels: any,
-  handleChange: Function
+  handleChange(event: React.ChangeEvent<{}>, value: any): any
 }
 
 export function TabPanel(props: TabPanelProps) {
