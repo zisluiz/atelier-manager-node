@@ -8,17 +8,6 @@ import MuiDialogActions from '@material-ui/core/DialogActions';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Typography from '@material-ui/core/Typography';
-import Container from '@material-ui/core/Container';
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import CurrencyRealInput from 'src/ui/components/CurrencyRealInput';
-import IntegerInput from 'src/ui/components/IntegerInput';
-import { Cloth } from 'src/model/Cloth';
-import { ServiceType } from 'src/model/ServiceType';
-import { useFormik } from 'formik';
-import * as yup from 'yup';
-import YupLocale from 'yup/lib/locale';
 
 const styles = (theme: Theme) =>
   createStyles({

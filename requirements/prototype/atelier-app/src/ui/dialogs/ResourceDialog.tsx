@@ -4,10 +4,10 @@ import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import FormDialog from '../components/FormDialog';
+import FormDialog from 'src/ui/components/base/FormDialog';
 import { CostType, Resource, getCostTypeName, getCostByTypeName } from 'src/model/Resource';
-import CurrencyRealInput from '../components/CurrencyRealInput';
-import RadioButtonsGroup from '../components/RadioButtonsGroup';
+import CurrencyRealInput from 'src/ui/components/base/CurrencyRealInput';
+import RadioButtonsGroup from 'src/ui/components/base/RadioButtonsGroup';
 import * as EnumUtil from 'src/util/EnumUtil';
 
 const validationSchema = yup.object({

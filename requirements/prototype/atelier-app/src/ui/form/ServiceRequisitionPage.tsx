@@ -4,27 +4,26 @@ import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Container from '@material-ui/core/Container';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
-import AddBoxIcon from '@material-ui/icons/AddBox';
 import Tab from '@material-ui/core/Tab';
 import MonetizationOnIcon from '@material-ui/icons/MonetizationOn';
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import CategoryIcon from '@material-ui/icons/Category';
 import moment from 'moment';
 import { useFormik } from 'formik';
-import CurrencyRealInput from 'src/ui/components/CurrencyRealInput';
+import CurrencyRealInput from 'src/ui/components/base/CurrencyRealInput';
 import ClothTable from 'src/ui/tables/ClothTable';
 import StepTable from 'src/ui/tables/StepTable';
 import ResourceTable from 'src/ui/tables/ResourceTable';
 import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 import { Customer } from 'src/model/Customer';
-import { TabComponent, TabPanel, a11yPropsTab }  from 'src/ui/components/TabComponent';
+import { TabComponent, TabPanel, a11yPropsTab }  from 'src/ui/components/base/TabComponent';
 import { Service } from 'src/model/Service';
 import * as yup from 'yup';
 import { BaseService } from 'src/model/BaseService';
 import { Cloth } from 'src/model/Cloth';
-import CurrencyRealOutput from 'src/ui/components/CurrencyRealOutput';
+import CurrencyRealOutput from 'src/ui/components/base/CurrencyRealOutput';
+import CustomerInput from 'src/ui/components/CustomerInput';
 import { Step } from 'src/model/Step';
 import * as IdentityUtil from 'src/util/IdentityUtil';
 
@@ -52,7 +51,6 @@ interface ServiceRequisitionPageProps {
 }
 
 export default function ServiceRequisitionPage(props: ServiceRequisitionPageProps) {
-  const inputCustomerRef = useRef<HTMLInputElement>();
   const [tabIndex, setTabIndex] = React.useState(0);
   const [selectedCloth, setSelectedCloth] = React.useState<null | Cloth>(null);
   const [selectedStep, setSelectedStep] = React.useState<null | Step>(null);
@@ -133,28 +131,13 @@ export default function ServiceRequisitionPage(props: ServiceRequisitionPageProp
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Grid container>
-              <Grid item xs={11}>            
-                  <Autocomplete
-                    id="autocomplete-customers"  
-                    noOptionsText="Cliente não encontrado!"                    
-                    freeSolo={true}   
-                    value={formik.values.customer}
-                    onChange={(event: any, value: string | Customer | null) => { formik.setFieldValue('customer', value); }}          
-                    options={controller.customers}                    
-                    getOptionLabel={(option) => option.name}
-                    renderInput={(params) => <TextField {...params} inputRef={inputCustomerRef} label="Cliente:" variant="outlined" required
-                      error={formik.touched.customer && Boolean(formik.errors.customer)}
-                      helperText={formik.touched.customer && formik.errors.customer}   />}
-                  />
-              </Grid>
-              <Grid item xs={1}>      
-                <IconButton aria-label="add" title="Criar novo cliente" color="secondary" 
-                    onClick={() => { if (!inputCustomerRef.current) return; let newCustomer = { name: inputCustomerRef.current.value}; controller.customers.push(newCustomer); formik.setFieldValue('customer', newCustomer); }} >
-                  <AddBoxIcon fontSize="large" />
-                </IconButton> 
-              </Grid>
-            </Grid>           
+
+            <CustomerInput options={controller.customers} value={formik.values.customer} 
+              onChange={(event: any, value: string | Customer | null) => { formik.setFieldValue('customer', value); }}
+              errorExpression={formik.touched.customer && Boolean(formik.errors.customer)}
+              helperText={formik.touched.customer && formik.errors.customer}
+              handleAddCustomer={(newCustomer: Customer) => {controller.customers.push(newCustomer); formik.setFieldValue('customer', newCustomer);}} />
+
           </Grid>
           <Grid item xs={12} sm={6}>              
                <TextField        

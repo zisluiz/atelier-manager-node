@@ -13,14 +13,14 @@ import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import Typography from '@material-ui/core/Typography';
-import AlertDialog from 'src/ui/components/AlertDialog';
+import AlertDialog from 'src/ui/components/base/AlertDialog';
 import ResourceDialog from 'src/ui/dialogs/ResourceDialog';
 import { Step } from 'src/model/Step';
 import * as ArraysUtil from 'src/util/ArraysUtil';
 import * as IdentityUtil from 'src/util/IdentityUtil';
 import { CostType, Resource, getCostByTypeName } from 'src/model/Resource';
-import EmptyTableData from '../components/EmptyTableData';
-import CurrencyRealOutput from '../components/CurrencyRealOutput';
+import EmptyTableData from 'src/ui/components/base/EmptyTableData';
+import CurrencyRealOutput from 'src/ui/components/base/CurrencyRealOutput';
 import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
 interface ResourceTableProps {

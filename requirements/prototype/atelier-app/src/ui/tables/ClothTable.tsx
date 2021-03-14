@@ -13,15 +13,15 @@ import IconButton from '@material-ui/core/IconButton';
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import CurrencyRealOutput from 'src/ui/components/CurrencyRealOutput';
-import CategoryListOutput from 'src/ui/components/CategoryListOutput';
+import CurrencyRealOutput from 'src/ui/components/base/CurrencyRealOutput';
+import CategoryListOutput from 'src/ui/components/base/CategoryListOutput';
 import ClothDialog from 'src/ui/dialogs/ClothDialog';
 import { Cloth } from 'src/model/Cloth';
 import { ServiceType } from 'src/model/ServiceType';
-import AlertDialog from 'src/ui/components/AlertDialog';
+import AlertDialog from 'src/ui/components/base/AlertDialog';
 import * as ArraysUtil from 'src/util/ArraysUtil';
 import * as IdentityUtil from 'src/util/IdentityUtil';
-import EmptyTableData from '../components/EmptyTableData';
+import EmptyTableData from 'src/ui/components/base/EmptyTableData';
 import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
 interface ClothTableProps {

@@ -16,12 +16,12 @@ import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import Typography from '@material-ui/core/Typography';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import { Cloth } from 'src/model/Cloth';
-import AlertDialog from '../components/AlertDialog';
+import AlertDialog from '../components/base/AlertDialog';
 import { Step } from 'src/model/Step';
 import StepDialog from '../dialogs/StepDialog';
 import * as ArraysUtil from 'src/util/ArraysUtil';
 import * as IdentityUtil from 'src/util/IdentityUtil';
-import EmptyTableData from '../components/EmptyTableData';
+import EmptyTableData from 'src/ui/components/base/EmptyTableData';
 import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
 interface StepTableProps {

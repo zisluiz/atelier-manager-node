@@ -2,13 +2,13 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import CurrencyRealInput from 'src/ui/components/CurrencyRealInput';
-import IntegerInput from 'src/ui/components/IntegerInput';
+import CurrencyRealInput from 'src/ui/components/base/CurrencyRealInput';
+import IntegerInput from 'src/ui/components/base/IntegerInput';
 import { Cloth } from 'src/model/Cloth';
 import { ServiceType } from 'src/model/ServiceType';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import FormDialog from '../components/FormDialog';
+import FormDialog from 'src/ui/components/base/FormDialog';
 import { Step } from 'src/model/Step';
 
 const validationSchema = yup.object({

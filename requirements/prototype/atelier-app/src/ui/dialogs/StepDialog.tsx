@@ -4,7 +4,7 @@ import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import FormDialog from '../components/FormDialog';
+import FormDialog from 'src/ui/components/base/FormDialog';
 import { Step } from 'src/model/Step';
 import { Resource } from 'src/model/Resource';
 
