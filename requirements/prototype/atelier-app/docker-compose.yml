@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  web:
+    image: node:15.11.0-alpine
+    working_dir: /home/node/app
+    volumes:
+      - /home/zis/dev/code/atelier-manager-node/requirements/prototype/atelier-app:/home/node/app
+    environment:
+      - NODE_ENV=production      
+    ports:
+      - "3000:3000"
+    command: "npm run dev"
