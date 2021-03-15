@@ -1,11 +1,15 @@
-import Head from 'next/head'
-//import styles from '../styles/Home.module.css'
-import ServiceRequisitionPage from 'src/ui/form/ServiceRequisitionPage'
 import React from 'react';
+import Head from 'next/head'
+import styles from '../styles/Home.module.css'
+import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 import { Service } from 'src/model/Service';
+import ServiceRequisitionForm from 'src/ui/form/ServiceRequisitionForm'
+import ServiceExecutionForm from 'src/ui/form/ServiceExecutionForm';
 
 export default function Home() {
-  const [service, setService] = React.useState<Service>(new Service(0, null, null, "", new Date(), 0.00, []));
+  const [controller] = React.useState(new ServiceRequisitionController());
+  //const [service, setService] = React.useState<Service>(controller.createNewService());
+  const [service, setService] = React.useState<Service>(controller.createFilledService());
 
   function handleServiceUpdate(service:Service) {
     setService(service);
@@ -21,10 +25,10 @@ export default function Home() {
       <main>
       <div>
           {service.id == 0 &&
-            <ServiceRequisitionPage service={service} handleServiceUpdate={handleServiceUpdate} />
+            <ServiceRequisitionForm controller={controller} service={service} handleServiceUpdate={handleServiceUpdate} />
           }
           {service.id > 0 &&
-            "AAAAAAA"
+            <ServiceExecutionForm controller={controller} service={service} handleServiceUpdate={handleServiceUpdate} />
           }
       </div>
         

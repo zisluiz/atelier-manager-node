@@ -1,7 +1,7 @@
 import React from 'react';
-import NumberFormat from 'react-number-format';
+import NumberFormat, { NumberFormatProps } from 'react-number-format';
 
-const CurrencyRealOutput = (props: any) => {     
+const CurrencyRealOutput = (props: NumberFormatProps) => {     
     return(
         <NumberFormat {...props}
             decimalSeparator=","

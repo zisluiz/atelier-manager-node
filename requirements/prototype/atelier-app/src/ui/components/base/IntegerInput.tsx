@@ -1,8 +1,8 @@
 import React from 'react';
-import NumberFormat from 'react-number-format';
+import NumberFormat, { NumberFormatProps } from 'react-number-format';
 import TextField from '@material-ui/core/TextField';
 
-const IntegerInput = (props: any) => {     
+const IntegerInput = (props: NumberFormatProps) => {     
     return(
         <NumberFormat {...props}
             variant="outlined"              

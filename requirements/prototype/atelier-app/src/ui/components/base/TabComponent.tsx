@@ -36,7 +36,7 @@ export function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (          
-        <Box p={3}>
+        <Box p={1} mt={2}>
           {children}
         </Box>
       )}
@@ -55,7 +55,7 @@ export function TabComponent(props:TabProps) {
   const classes = useStyles();
 
   return (
-    <Paper square className={classes.root}>
+    <Box  className={classes.root}>
       <Tabs      
         value={props.tabIndex}
         onChange={props.handleChange}
@@ -69,6 +69,6 @@ export function TabComponent(props:TabProps) {
       </Tabs>
 
       {props.tabPanels}
-    </Paper> 
+    </Box> 
   );
 }

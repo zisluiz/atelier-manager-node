@@ -40,16 +40,12 @@ const ClothTable = (props:ClothTableProps) => {
     const [messageAlertDialog, setMessageAlertDialog] = React.useState("");
     const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false);
 
-    let isEdittingRow = false;
-
     function openNewCloth() {
-        isEdittingRow = false;
         setSelectedRow(createNewCloth());
         setIsDialogOpen(true);
     }
 
-    function openEditCloth(clothToEdit:Cloth) {        
-        isEdittingRow = true;
+    function openEditCloth(clothToEdit:Cloth) { 
         setSelectedRow(clothToEdit);
         setIsDialogOpen(true);
     }
@@ -137,7 +133,7 @@ const ClothTable = (props:ClothTableProps) => {
                         </TableCell>                                                    
                         <TableCell align="right">{row.quantity}</TableCell>
                         <TableCell align="right">
-                        <CurrencyRealOutput value={row.price} />
+                            <CurrencyRealOutput value={row.price} />
                         </TableCell>
                         <TableCell><CategoryListOutput categories={row.serviceTypes} /></TableCell>
                         <TableCell>{row.steps && row.steps.map(step => step.name).join(', ')}</TableCell>

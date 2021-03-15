@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
@@ -45,16 +45,16 @@ const validationSchema = yup.object({
   .required("Prazo de conclusão é obrigatório!")
 });
 
-interface ServiceRequisitionPageProps {
+interface ServiceRequisitionFormProps {
+  controller:ServiceRequisitionController,
   service: Service,
   handleServiceUpdate: Function
 }
 
-export default function ServiceRequisitionPage(props: ServiceRequisitionPageProps) {
+export default function ServiceRequisitionForm(props: ServiceRequisitionFormProps) {
   const [tabIndex, setTabIndex] = React.useState(0);
   const [selectedCloth, setSelectedCloth] = React.useState<null | Cloth>(null);
   const [selectedStep, setSelectedStep] = React.useState<null | Step>(null);
-  const [controller, setController] = React.useState(new ServiceRequisitionController());
     
   const handleChangeTab = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTabIndex(newValue);
@@ -123,7 +123,7 @@ export default function ServiceRequisitionPage(props: ServiceRequisitionPageProp
               noOptionsText="Serviço não encontrado!"                  
               value={formik.values.baseService}
               onChange={(event: any, value: BaseService | null) => { handleLoadSelectedBaseService(value); }}               
-              options={controller.baseServices}
+              options={props.controller.baseServices}
               getOptionLabel={(option) => option.name}
               renderInput={(params) => <TextField {...params} autoFocus label="Base de Serviço:" variant="outlined" required
               error={formik.touched.baseService && Boolean(formik.errors.baseService)}
@@ -132,11 +132,11 @@ export default function ServiceRequisitionPage(props: ServiceRequisitionPageProp
           </Grid>
           <Grid item xs={12} sm={6}>
 
-            <CustomerInput options={controller.customers} value={formik.values.customer} 
+            <CustomerInput options={props.controller.customers} value={formik.values.customer} 
               onChange={(event: any, value: string | Customer | null) => { formik.setFieldValue('customer', value); }}
               errorExpression={formik.touched.customer && Boolean(formik.errors.customer)}
               helperText={formik.touched.customer && formik.errors.customer}
-              handleAddCustomer={(newCustomer: Customer) => {controller.customers.push(newCustomer); formik.setFieldValue('customer', newCustomer);}} />
+              handleAddCustomer={(newCustomer: Customer) => {props.controller.customers.push(newCustomer); formik.setFieldValue('customer', newCustomer);}} />
 
           </Grid>
           <Grid item xs={12} sm={6}>              
@@ -208,15 +208,15 @@ export default function ServiceRequisitionPage(props: ServiceRequisitionPageProp
               tabPanels={
                 [
                   <TabPanel value={tabIndex} index={0} key={0}>                    
-                    <ClothTable serviceTypes={controller.serviceTypes} handleClothSelection={handleClothSelection} controller={controller} 
+                    <ClothTable serviceTypes={props.controller.serviceTypes} handleClothSelection={handleClothSelection} controller={props.controller} 
                       clothes={props.service.clothes} handleUpdateClothes={handleUpdateClothes}
-                      optionsClothes={controller.clothes} />
+                      optionsClothes={props.controller.clothes} />
                   </TabPanel>,
                   <TabPanel value={tabIndex} index={1} key={1}>
-                    <StepTable cloth={selectedCloth} optionsBaseSteps={controller.baseSteps} handleStepSelection={handleStepSelection} controller={controller} />
+                    <StepTable cloth={selectedCloth} optionsBaseSteps={props.controller.baseSteps} handleStepSelection={handleStepSelection} controller={props.controller} />
                   </TabPanel>,
                   <TabPanel value={tabIndex} index={2} key={2}>
-                    <ResourceTable step={selectedStep} optionsBaseResources={controller.baseResources} controller={controller} />
+                    <ResourceTable step={selectedStep} optionsBaseResources={props.controller.baseResources} controller={props.controller} />
                   </TabPanel> 
                 ]
               }
@@ -224,8 +224,8 @@ export default function ServiceRequisitionPage(props: ServiceRequisitionPageProp
             />
           </Grid>
 
-          <Grid item xs={12}>
-            <Button color="primary" type="submit" variant="contained" form="formService">
+          <Grid item xs={12} justify="flex-end">
+            <Button color="primary" type="submit" variant="contained">
               Salvar
             </Button>           
           </Grid>

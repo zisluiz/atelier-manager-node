@@ -4,9 +4,7 @@ services:
     image: node:15.11.0-alpine
     working_dir: /home/node/app
     volumes:
-      - /home/zis/dev/code/atelier-manager-node/requirements/prototype/atelier-app:/home/node/app
-    environment:
-      - NODE_ENV=production      
+      - /home/zis/dev/code/atelier-manager-node/requirements/prototype/atelier-app:/home/node/app    
     ports:
       - "3000:3000"
-    command: "npm run dev"
+    command: sh -c "npm install && npm run dev"

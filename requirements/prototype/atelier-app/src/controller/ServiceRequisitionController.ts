@@ -4,6 +4,7 @@ import { ServiceType } from 'src/model/ServiceType';
 import { Step } from 'src/model/Step';
 import { Cloth } from 'src/model/Cloth';
 import { Resource, CostType } from 'src/model/Resource';
+import { Service } from 'src/model/Service';
 
 export default class ServiceRequisitionController {
     public customers:Customer[];
@@ -75,5 +76,13 @@ export default class ServiceRequisitionController {
         const persistedStep = persistedCloth.steps && persistedCloth.steps.filter((step:Step) => step.id == stepToUpdate.id)[0];
 
         persistedStep.resources = resources;
+    }
+
+    public createNewService() {
+        return new Service(0, null, null, "", new Date(), 0.00, []);
+    }
+
+    public createFilledService() {
+        return new Service(1, this.baseServices[0], this.customers[0], "Observações gerais e anotações do serviço", new Date(), 130.00, this.baseServices[0].clothes);
     }
 }
