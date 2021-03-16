@@ -12,7 +12,6 @@ import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import Typography from '@material-ui/core/Typography';
 import AlertDialog from 'src/ui/components/base/AlertDialog';
 import ExpenseDialog from 'src/ui/dialogs/ExpenseDialog';
 import * as ArraysUtil from 'src/util/ArraysUtil';

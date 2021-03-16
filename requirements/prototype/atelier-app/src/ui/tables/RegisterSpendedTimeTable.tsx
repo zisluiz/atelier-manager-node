@@ -51,9 +51,11 @@ import { SpendTime } from 'src/model/SpendTime';
             errors = {...errors, inputManualEndSpendTime: "Hora fim deve ser maior que a hora inicial!"};
         }  
     } else {
-        if (values.selectedSpendedTime != null && !moment(values.selectedSpendedTime.date, "").isSame(new Date(), "day")) {
+        if (values.selectedSpendedTime != null && !moment(values.selectedSpendedTime.date, "").isSame(new Date(), "day"))
             errors = {...errors, manualSpendTimeDate: "Não é possível usar o cronômetro para finalizar outro dia! Utilize o recurso manual."};
-        }
+
+        if (values.selectedSpendedTime && values.selectedSpendedTime.endTime) 
+            errors = {...errors, inputManualEndSpendTime: "Horário fim já informado. Utilize a opção manual para atualizar as horas despendidas."};
     }
 
     console.log(errors);
@@ -107,8 +109,10 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
             let date = null;
             let startTime = null;
             let endTime = null;
+            
+            const isManualSubmition = values.submitionType == "manual";
 
-            if (values.submitionType == "manual") {
+            if (isManualSubmition) {
                 date = moment(values.manualSpendTimeDate, "yyyy-MM-DD").toDate();
                 startTime = values.inputManualStartSpendTime;
                 endTime = values.inputManualEndSpendTime;
@@ -121,17 +125,11 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                 endTime = edittingSpendedTime ? timeNow : "";
             }
 
-            saveSpendedTime(edittingSpendedTime, clothes, steps, date, startTime, endTime);
+            saveSpendedTime(isManualSubmition, edittingSpendedTime, clothes, steps, date, startTime, endTime);
         }
     });
 
-    /*useEffect(() => {
-        if (formik.values.submitionType) {             
-            formik.handleSubmit();
-        }
-    });*/
-
-    function saveSpendedTime(edittingSpendedTime: SpendTime | null, clothes: ClothInstance[], steps: Step[], date: Date, startTime: string, endTime: string) {
+    function saveSpendedTime(isManualSubmition: boolean, edittingSpendedTime: SpendTime | null, clothes: ClothInstance[], steps: Step[], date: Date, startTime: string, endTime: string) {
         const id = edittingSpendedTime ? edittingSpendedTime.id : IdentityUtil.generateId();
         const spendedTime = new SpendTime(id, clothes, steps, date, startTime, endTime);
 
@@ -140,7 +138,7 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
 
         const newSpendedTimes = edittingSpendedTime ? ArraysUtil.updateObject(props.serviceSpendedTimes, edittingSpendedTime, spendedTime) :
         ArraysUtil.addObject(props.serviceSpendedTimes, spendedTime);
-        editSpendedTime(edittingSpendedTime ? null : spendedTime);                        
+        editSpendedTime(isManualSubmition || edittingSpendedTime ? null : spendedTime);                        
         props.updateSpendedTimes(newSpendedTimes);
         props.showSnackAlert("Horas adicionadas com sucesso!", "success");
     }
@@ -321,8 +319,8 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                         }} />                      
             </Grid>                 
             <Grid item xs={1}>            
-                <Button color="primary" variant="contained" type="submit" 
-                    onClick={ (e: any) => { callSubmit("manual"); } }>Incluir</Button>
+                <Button color="primary" variant="contained" type="button"
+                    onClick={ (e: any) => { callSubmit("manual"); } }>{formik.values.selectedSpendedTime == null ? "Incluir" : "Atualizar"}</Button>
             </Grid> 
             <Grid item xs={12}>
                 <TableContainer component={Paper}>                      

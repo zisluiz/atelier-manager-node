@@ -18,9 +18,11 @@ import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import { Cloth } from 'src/model/Cloth';
 import AlertDialog from '../components/base/AlertDialog';
 import { Step } from 'src/model/Step';
+import { Resource, getCostTypeName } from 'src/model/Resource';
 import StepDialog from '../dialogs/StepDialog';
 import * as ArraysUtil from 'src/util/ArraysUtil';
 import * as IdentityUtil from 'src/util/IdentityUtil';
+import * as NumberUtil from 'src/util/NumberUtil';
 import EmptyRowDataTable from 'src/ui/components/base/EmptyRowDataTable';
 import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
@@ -135,7 +137,10 @@ const StepTable = (props:StepTableProps) => {
                         <TableCell scope="row">
                         {row.name}
                         </TableCell>
-                        <TableCell>{row.resources && row.resources.map(resource => resource.name).join(', ')}</TableCell>
+                        <TableCell>{row.resources && row.resources.map( (resource:Resource) => {
+                            return `${resource.name} (${NumberUtil.getCurrencyString(resource.cost)} ${getCostTypeName(resource.costType).toLowerCase()})` 
+                        }).join(', ')
+                        }</TableCell>
                         <TableCell align="center">
 
                         <Grid container>

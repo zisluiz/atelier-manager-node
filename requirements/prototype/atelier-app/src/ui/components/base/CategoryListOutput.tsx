@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme: Theme) =>
       margin: 0,
     },
     chip: {
-      margin: theme.spacing(4.0)
+      marginTop: "4px"
     },
   }),
 );
@@ -34,6 +34,7 @@ const CategoryListOutput = (props: CategoryListOutputProps) => {
             return (
               <li key={category.name}>
                 <Chip style={{backgroundColor: category.color}}
+                  className={classes.chip}
                   label={category.name}
                 />
               </li>

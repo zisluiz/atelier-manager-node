@@ -8,6 +8,7 @@ import { Service } from 'src/model/Service';
 import { ClothInstance } from 'src/model/ClothInstance';
 import { ExecutionService } from 'src/model/ExecutionService';
 import { PaymentType } from 'src/model/PaymentType';
+import { Status } from 'src/model/Status';
 
 export default class ServiceRequisitionController {
     public customers:Customer[];
@@ -17,6 +18,7 @@ export default class ServiceRequisitionController {
     public baseSteps:Step[];
     public baseResources:Resource[];
     public paymentTypes: PaymentType[];
+    public statusList: Status[];    
 
     constructor() {
         this.customers = [ new Customer('AMAI'), new Customer('Maria'), new Customer('Luiz Eduardo'), new Customer('Mirtes') ]
@@ -64,6 +66,8 @@ export default class ServiceRequisitionController {
             new BaseService('Ajuste de calça', [clothCalca]), new BaseService('Barra de saia', [clothSaia]), new BaseService('Sob-medida e ajuste', [clothVestido, clothSaia])];
 
         this.paymentTypes = [ new PaymentType(1, "Dinheiro", 0.00), new PaymentType(2, "Cartão", 0.03)];
+
+        this.statusList = [ new Status(1, "Em andamento"), new Status(2, "Concluído"), new Status(3, "Pago")]
     }
     
     public updateClothSteps(clothToUpdate:Cloth | null, steps: Step[]) {
@@ -103,6 +107,18 @@ export default class ServiceRequisitionController {
             }
         });
 
-        return new ExecutionService(service, instancedCloths, [], [], []);
+        return new ExecutionService(service, 20.0, instancedCloths, [], [], [], this.statusList[0]);
+    }
+
+    public getStatusCompletedService() {
+        return this.statusList[1];
+    }
+
+    public getStatusPayedService() {
+        return this.statusList[2];
+    }
+
+    public getStatusProgressService() {
+        return this.statusList[0];
     }
 }
