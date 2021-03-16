@@ -12,7 +12,6 @@ import CategoryIcon from '@material-ui/icons/Category';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert, {Color as AlertColor} from '@material-ui/lab/Alert';
 import moment from 'moment';
-import { useFormik } from 'formik';
 import CurrencyRealInput from 'src/ui/components/base/CurrencyRealInput';
 import ClothTable from 'src/ui/tables/ClothTable';
 import StepTable from 'src/ui/tables/StepTable';
@@ -22,12 +21,15 @@ import ServiceRequisitionController from 'src/controller/ServiceRequisitionContr
 import { Customer } from 'src/model/Customer';
 import { TabComponent, TabPanel, a11yPropsTab }  from 'src/ui/components/base/TabComponent';
 import { Service } from 'src/model/Service';
+import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { Cloth } from 'src/model/Cloth';
 import CustomerInput from 'src/ui/components/CustomerInput';
 import { Step } from 'src/model/Step';
 import PriceCard from 'src/ui/components/base/PriceCard';
 import ContentCard from 'src/ui/components/base/ContentCard';
+import { ExecutionService } from 'src/model/ExecutionService';
+import { SpendTime } from 'src/model/SpendTime';
 
 const useStyles = makeStyles({
   root: {
@@ -66,12 +68,14 @@ interface ServiceExecutionFormProps {
 }
 
 export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
+  const [executionService, setExecutionService] = React.useState<ExecutionService>(props.controller.getExecutionService(props.service));
+
   const [tabIndex, setTabIndex] = React.useState(0);
   const [selectedCloth, setSelectedCloth] = React.useState<null | Cloth>(null);
   const [selectedStep, setSelectedStep] = React.useState<null | Step>(null);
   const [openSnackAlert, setOpenSnackAlert] = React.useState(false);
   const [messageSnackAlert, setMessageSnackAlert] = React.useState<JSX.Element | null>(null);
-
+  
   const classes = useStyles();
     
   const handleChangeTab = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -102,6 +106,10 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
     props.handleServiceUpdate({...props.service, clothes: clothes});
   }
 
+  function updateSpendedTimes(spendedTimes: SpendTime[]) {
+    setExecutionService({...executionService, spendedTimes: spendedTimes});
+  }
+
   function getPrecoBaseTotal() {
     let total = 0;
 
@@ -120,6 +128,7 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
     },    
     validationSchema: validationSchema,
     onSubmit: (values: any) => {
+      console.log("saving basic info");
       /*let newService:Service = {...props.service};
       newService.baseService = values.baseService;
       newService.customer = values.customer;
@@ -132,8 +141,7 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
   });  
   
   return (
-    <Container component="main" maxWidth="lg">
-      <form id="formService" onSubmit={formik.handleSubmit} noValidate> 
+    <Container component="main" maxWidth="lg">      
       <Grid container spacing={2} >
           <Grid item xs={12} sm={4}>      
             <Typography variant="h4" align="center" gutterBottom className={classes.titlePage} >
@@ -155,81 +163,85 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
         </Grid>
 
         <ContentCard header="Informações do serviço:" marginTop={2}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField     
-                variant="outlined"
-                value={props.service.baseService && props.service.baseService.name}
-                label="Base de serviço:"
-                disabled
-                fullWidth />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-
-              <CustomerInput options={props.controller.customers} value={formik.values.customer} 
-                onChange={(event: any, value: string | Customer | null) => { formik.setFieldValue('customer', value); }}
-                errorExpression={formik.touched.customer && Boolean(formik.errors.customer)}
-                helperText={formik.touched.customer && formik.errors.customer}
-                handleAddCustomer={(newCustomer: Customer) => {props.controller.customers.push(newCustomer); formik.setFieldValue('customer', newCustomer); showSnackAlert("Cliente adicionado com sucesso!", 'success')}} />
-
-            </Grid>
-            <Grid item xs={4}> 
-              <CurrencyRealInput id="inputHourValue" label="Valor/hora:" required 
-                  value={formik.values.hourValue}
-                  onValueChange={ (values: any) => formik.setFieldValue('hourValue', values.floatValue) }
-                  error={formik.touched.hourValue && Boolean(formik.errors.hourValue)}
-                  helperText={formik.touched.hourValue && formik.errors.hourValue} />
-            </Grid>                    
-            <Grid item xs={4}> 
-              <CurrencyRealInput id="inputPrice" label="Preço:" required 
-                  value={formik.values.price}
-                  onValueChange={ (values: any) => formik.setFieldValue('price', values.floatValue) }
-                  error={formik.touched.price && Boolean(formik.errors.price)}
-                  helperText={formik.touched.price && formik.errors.price} />
-            </Grid>          
-            <Grid item xs={4}>            
-              <TextField
-                id="inputDeadline"
-                label="Prazo de conclusão:"
-                required
-                value={formik.values.deadline}
-                onChange={ (event) => { formik.setFieldValue('deadline', event.target.value); } }  
-                error={formik.touched.deadline && Boolean(formik.errors.deadline)}
-                helperText={formik.touched.deadline && formik.errors.deadline}              
-                variant="outlined"
-                type="date"
-                fullWidth
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-            </Grid>
-            <Grid item xs={8}>              
-                <TextField        
-                  multiline={true}
+          <form id="formService" onSubmit={formik.handleSubmit} noValidate> 
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField     
                   variant="outlined"
-                  rows="4"      
-                  rowsMax="6"
-                  id="observacoes"
-                  value={formik.values.comments}
-                  onChange={formik.handleChange }            
-                  name="comments"
-                  label="Observações"
+                  value={props.service.baseService && props.service.baseService.name}
+                  label="Base de serviço:"
+                  disabled
                   fullWidth />
-            </Grid>          
-            <Grid item xs={4}> 
-            <input
-              style={{ display: "none" }}
-              id="contained-button-file"
-              type="file"
-            />
-            <label htmlFor="contained-button-file">
-              <Button variant="contained" color="secondary" component="span">
-                Upload
-              </Button>
-            </label>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <CustomerInput options={props.controller.customers} value={formik.values.customer} 
+                  onChange={(event: any, value: string | Customer | null) => { formik.setFieldValue('customer', value); }}
+                  errorExpression={formik.touched.customer && Boolean(formik.errors.customer)}
+                  helperText={formik.touched.customer && formik.errors.customer}
+                  handleAddCustomer={(newCustomer: Customer) => {props.controller.customers.push(newCustomer); formik.setFieldValue('customer', newCustomer); showSnackAlert("Cliente adicionado com sucesso!", 'success')}} />
+
+              </Grid>
+              <Grid item xs={4}> 
+                <CurrencyRealInput id="inputHourValue" label="Valor/hora:" required 
+                    value={formik.values.hourValue}
+                    onValueChange={ (values: any) => formik.setFieldValue('hourValue', values.floatValue) }
+                    error={formik.touched.hourValue && Boolean(formik.errors.hourValue)}
+                    helperText={formik.touched.hourValue && formik.errors.hourValue} />
+              </Grid>                    
+              <Grid item xs={4}> 
+                <CurrencyRealInput id="inputPrice" label="Preço:" required 
+                    value={formik.values.price}
+                    onValueChange={ (values: any) => formik.setFieldValue('price', values.floatValue) }
+                    error={formik.touched.price && Boolean(formik.errors.price)}
+                    helperText={formik.touched.price && formik.errors.price} />
+              </Grid>          
+              <Grid item xs={4}>            
+                <TextField
+                  id="inputDeadline"
+                  label="Prazo de conclusão:"
+                  required
+                  value={formik.values.deadline}
+                  onChange={ (event) => { formik.setFieldValue('deadline', event.target.value); } }  
+                  error={formik.touched.deadline && Boolean(formik.errors.deadline)}
+                  helperText={formik.touched.deadline && formik.errors.deadline}              
+                  variant="outlined"
+                  type="date"
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={8}>              
+                  <TextField        
+                    multiline={true}
+                    variant="outlined"
+                    rows="4"      
+                    rowsMax="6"
+                    id="observacoes"
+                    value={formik.values.comments}
+                    onChange={formik.handleChange }            
+                    name="comments"
+                    label="Observações"
+                    fullWidth />
+              </Grid>          
+              <Grid item xs={4}> 
+                <input
+                  style={{ display: "none" }}
+                  id="contained-button-file"
+                  type="file"
+                />
+                <label htmlFor="contained-button-file">
+                  <Button variant="contained" color="secondary" component="span">
+                    Upload
+                  </Button>
+                </label>
+              </Grid>
+              <Grid item xs={12}>
+                  <Button color="primary" type="submit" variant="contained">Salvar</Button>
+                </Grid>            
             </Grid>
-          </Grid>
+          </form>
          </ContentCard>
 
          <ContentCard header="Especificação dos trabalhos:" marginTop={2}>
@@ -266,22 +278,22 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
         </ContentCard>
 
         <ContentCard header="Horas despendidas nas tarefas:" marginTop={2}>
-            <RegisterSpendedTime />
+            <RegisterSpendedTime clothInstances={executionService.instancedCloths} 
+              serviceSpendedTimes={executionService.spendedTimes}
+              updateSpendedTimes={updateSpendedTimes} 
+              showSnackAlert={showSnackAlert} />
         </ContentCard>
 
         <ContentCard header="Ações:" marginTop={2}>
           <Grid container spacing={2}>
             <Grid container justify="flex-end">
-              <Grid item xs={1} justify="flex-end">
-                <Button color="primary" type="submit" variant="contained">Salvar</Button>
-              </Grid>
-              <Grid item xs={3} justify="flex-end">            
-                <Button color="primary" type="submit" variant="contained">Salvar e concluir serviço</Button>
+              <Grid item xs={3}>            
+                <Button color="primary" type="submit" variant="contained">Concluir serviço</Button>
               </Grid>          
             </Grid>
           </Grid> 
         </ContentCard>              
-      </form>
+      
 
       {messageSnackAlert &&
         <Snackbar open={openSnackAlert} onClose={handleCloseSnackAlert}>          

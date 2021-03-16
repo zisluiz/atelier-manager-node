@@ -5,6 +5,8 @@ import { Step } from 'src/model/Step';
 import { Cloth } from 'src/model/Cloth';
 import { Resource, CostType } from 'src/model/Resource';
 import { Service } from 'src/model/Service';
+import { ClothInstance } from 'src/model/ClothInstance';
+import { ExecutionService } from 'src/model/ExecutionService';
 
 export default class ServiceRequisitionController {
     public customers:Customer[];
@@ -84,5 +86,19 @@ export default class ServiceRequisitionController {
 
     public createFilledService() {
         return new Service(1, this.baseServices[0], this.customers[0], "Observações gerais e anotações do serviço", new Date(), 130.00, this.baseServices[0].clothes);
+    }
+
+    public getExecutionService(service:Service) {
+        let generatedId = 1;
+        let instancedCloths:ClothInstance[] = [];
+        
+        service.clothes.forEach( (cloth: Cloth) => {
+            for (let index = 0; index < cloth.quantity; index++) {
+                instancedCloths.push(new ClothInstance(generatedId, cloth.name + ` (${index+1})`, cloth));
+                generatedId++;
+            }
+        });
+
+        return new ExecutionService(service, instancedCloths, []);
     }
 }

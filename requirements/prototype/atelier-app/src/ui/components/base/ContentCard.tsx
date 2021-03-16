@@ -22,7 +22,7 @@ export default function ContentCard(props: ContentCardProps) {
 
   return (
     <Box mt={props.marginTop? props.marginTop : 0}>
-      <Card className={classes.root} variant="outlined" {...props} >
+      <Card className={classes.root} variant="outlined">
         <CardHeader subheader={props.header} />
           <CardContent>
             {props.children}

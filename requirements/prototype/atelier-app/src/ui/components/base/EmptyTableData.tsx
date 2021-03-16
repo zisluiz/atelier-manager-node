@@ -4,7 +4,7 @@ import Typography from '@material-ui/core/Typography';
 
 interface EmptyTableDataProps {
     message: string,
-    data: any[],
+    data: any[] | null,
     colSpan: number
 }
 
