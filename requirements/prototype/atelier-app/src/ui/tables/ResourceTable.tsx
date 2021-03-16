@@ -19,7 +19,7 @@ import { Step } from 'src/model/Step';
 import * as ArraysUtil from 'src/util/ArraysUtil';
 import * as IdentityUtil from 'src/util/IdentityUtil';
 import { CostType, Resource, getCostByTypeName } from 'src/model/Resource';
-import EmptyTableData from 'src/ui/components/base/EmptyTableData';
+import EmptyRowDataTable from 'src/ui/components/base/EmptyRowDataTable';
 import CurrencyRealOutput from 'src/ui/components/base/CurrencyRealOutput';
 import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
@@ -119,7 +119,7 @@ const ResourceTable = (props:ResourceTableProps) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    <EmptyTableData data={resources} message={`Nenhum recurso cadastrado para a etapa \"${props.step && props.step.name}\"!`} colSpan={4} />
+                    <EmptyRowDataTable data={resources} message={`Nenhum recurso cadastrado para a etapa \"${props.step && props.step.name}\"!`} colSpan={4} />
 
                     {resources && resources.length > 0 && resources.map((row) => (
                     <TableRow key={row.id}>

@@ -94,7 +94,7 @@ export default function ServiceRequisitionForm(props: ServiceRequisitionFormProp
       customer: null,
       comments: "",
       price: 0.00,
-      deadline: moment(props.service.deadline).format("YYYY-MM-DD")
+      deadline: moment(props.service.deadline).format("yyyy-MM-DD")
     },    
     validationSchema: validationSchema,
     onSubmit: (values: any) => {  
@@ -103,7 +103,7 @@ export default function ServiceRequisitionForm(props: ServiceRequisitionFormProp
       newService.customer = values.customer;
       newService.comments = values.comments;
       newService.price = values.price;
-      newService.deadline = moment(values.deadline, "YYYY-MM-DD").toDate();
+      newService.deadline = moment(values.deadline, "yyyy-MM-DD").toDate();
       newService.id = IdentityUtil.generateId();
       props.handleServiceUpdate(newService);
     }

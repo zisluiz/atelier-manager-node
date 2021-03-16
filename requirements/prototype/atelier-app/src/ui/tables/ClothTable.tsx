@@ -21,7 +21,7 @@ import { ServiceType } from 'src/model/ServiceType';
 import AlertDialog from 'src/ui/components/base/AlertDialog';
 import * as ArraysUtil from 'src/util/ArraysUtil';
 import * as IdentityUtil from 'src/util/IdentityUtil';
-import EmptyTableData from 'src/ui/components/base/EmptyTableData';
+import EmptyRowDataTable from 'src/ui/components/base/EmptyRowDataTable';
 import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
 interface ClothTableProps {
@@ -124,7 +124,7 @@ const ClothTable = (props:ClothTableProps) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    <EmptyTableData data={props.clothes} message="Nenhuma peça cadastrada!" colSpan={6} />
+                    <EmptyRowDataTable data={props.clothes} message="Nenhuma peça cadastrada!" colSpan={6} />
 
                     {props.clothes && props.clothes.length > 0 && props.clothes.map((row) => (
                     <TableRow key={row.id}>

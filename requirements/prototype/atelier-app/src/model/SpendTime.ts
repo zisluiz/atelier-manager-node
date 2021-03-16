@@ -25,6 +25,6 @@ export class SpendTime {
             durationText = this.endTime ? ` - duração: ${duration.get('hours')} hora(s) e ${duration.get('minutes')} minuto(s)` : "";
         }
 
-        return `${moment(this.date).format("DD/MM/YYYY")} - ${this.startTime} às ${this.endTime ? this.endTime : "?"} ${durationText}`;
+        return `${moment(this.date).format("DD/MM/yyyy")} - ${this.startTime} às ${this.endTime ? this.endTime : "?"} ${durationText}`;
     }
 }

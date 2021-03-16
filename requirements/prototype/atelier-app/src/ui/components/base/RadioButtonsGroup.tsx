@@ -6,12 +6,12 @@ import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 
 interface RadioButtonsGroupProps {
-    label: string,
-    ariaLabel: string,
+    label: string,    
     name: string,
     options: any[],
     selected: any,
-    handleChange: Function
+    ariaLabel?: string,
+    handleChange(selectedValue: string): any
 }
 
 export default function RadioButtonsGroup(props: RadioButtonsGroupProps) {

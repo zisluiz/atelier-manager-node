@@ -21,7 +21,7 @@ import { Step } from 'src/model/Step';
 import StepDialog from '../dialogs/StepDialog';
 import * as ArraysUtil from 'src/util/ArraysUtil';
 import * as IdentityUtil from 'src/util/IdentityUtil';
-import EmptyTableData from 'src/ui/components/base/EmptyTableData';
+import EmptyRowDataTable from 'src/ui/components/base/EmptyRowDataTable';
 import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
 interface StepTableProps {
@@ -128,7 +128,7 @@ const StepTable = (props:StepTableProps) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    <EmptyTableData data={steps} message={`Nenhuma etapa cadastrada para a peça \"${props.cloth && props.cloth.name}\"!`} colSpan={3} />
+                    <EmptyRowDataTable data={steps} message={`Nenhuma etapa cadastrada para a peça \"${props.cloth && props.cloth.name}\"!`} colSpan={3} />
 
                     {steps && steps.length > 0 && steps.map((row) => (
                     <TableRow key={row.id}>

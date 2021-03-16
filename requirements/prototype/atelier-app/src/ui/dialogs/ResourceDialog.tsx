@@ -102,7 +102,7 @@ const ResourceDialog = (props:ResourceDialogProps) => {
                     helperText={formik.touched.cost && formik.errors.cost} />
               </Grid> 
               <Grid item xs={12}>
-                  <RadioButtonsGroup name="costType" ariaLabel="costType" label="Tipo de custo:" 
+                  <RadioButtonsGroup name="costType" ariaLabel="Tipo de custo:" label="Tipo de custo:" 
                     selected={formik.values.costType} options={optionsCostTypes} 
                     handleChange={ (value: string) => formik.setFieldValue('costType', value) } />
               </Grid>

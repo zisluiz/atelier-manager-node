@@ -7,6 +7,7 @@ import { Resource, CostType } from 'src/model/Resource';
 import { Service } from 'src/model/Service';
 import { ClothInstance } from 'src/model/ClothInstance';
 import { ExecutionService } from 'src/model/ExecutionService';
+import { PaymentType } from 'src/model/PaymentType';
 
 export default class ServiceRequisitionController {
     public customers:Customer[];
@@ -15,6 +16,7 @@ export default class ServiceRequisitionController {
     public clothes:Cloth[];
     public baseSteps:Step[];
     public baseResources:Resource[];
+    public paymentTypes: PaymentType[];
 
     constructor() {
         this.customers = [ new Customer('AMAI'), new Customer('Maria'), new Customer('Luiz Eduardo'), new Customer('Mirtes') ]
@@ -60,6 +62,8 @@ export default class ServiceRequisitionController {
 
         this.baseServices = [ new BaseService('Modelagem', [clothCamisaBranca]), new BaseService('Sob-medida', [clothVestido]), 
             new BaseService('Ajuste de calça', [clothCalca]), new BaseService('Barra de saia', [clothSaia]), new BaseService('Sob-medida e ajuste', [clothVestido, clothSaia])];
+
+        this.paymentTypes = [ new PaymentType(1, "Dinheiro", 0.00), new PaymentType(2, "Cartão", 0.03)];
     }
     
     public updateClothSteps(clothToUpdate:Cloth | null, steps: Step[]) {
@@ -99,6 +103,6 @@ export default class ServiceRequisitionController {
             }
         });
 
-        return new ExecutionService(service, instancedCloths, []);
+        return new ExecutionService(service, instancedCloths, [], [], []);
     }
 }

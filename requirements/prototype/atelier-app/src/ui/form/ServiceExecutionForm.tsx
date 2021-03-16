@@ -15,7 +15,7 @@ import moment from 'moment';
 import CurrencyRealInput from 'src/ui/components/base/CurrencyRealInput';
 import ClothTable from 'src/ui/tables/ClothTable';
 import StepTable from 'src/ui/tables/StepTable';
-import RegisterSpendedTime from 'src/ui/tables/RegisterSpendedTime';
+import RegisterSpendedTimeTable from 'src/ui/tables/RegisterSpendedTimeTable';
 import ResourceTable from 'src/ui/tables/ResourceTable';
 import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 import { Customer } from 'src/model/Customer';
@@ -30,6 +30,10 @@ import PriceCard from 'src/ui/components/base/PriceCard';
 import ContentCard from 'src/ui/components/base/ContentCard';
 import { ExecutionService } from 'src/model/ExecutionService';
 import { SpendTime } from 'src/model/SpendTime';
+import { Expense } from 'src/model/Expense';
+import ExpenseTable from 'src/ui/tables/ExpenseTable';
+import { Revenue } from 'src/model/Revenue';
+import RevenueTable from '../tables/RevenueTable';
 
 const useStyles = makeStyles({
   root: {
@@ -71,6 +75,7 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
   const [executionService, setExecutionService] = React.useState<ExecutionService>(props.controller.getExecutionService(props.service));
 
   const [tabIndex, setTabIndex] = React.useState(0);
+  const [tabIndexReceitas, setTabIndexReceitas] = React.useState(0);
   const [selectedCloth, setSelectedCloth] = React.useState<null | Cloth>(null);
   const [selectedStep, setSelectedStep] = React.useState<null | Step>(null);
   const [openSnackAlert, setOpenSnackAlert] = React.useState(false);
@@ -80,6 +85,10 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
     
   const handleChangeTab = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTabIndex(newValue);
+  };
+
+  const handleChangeTabReceitas = (event: React.ChangeEvent<{}>, newValue: number) => {
+    setTabIndexReceitas(newValue);
   };
 
   function handleClothSelection(cloth:Cloth) {
@@ -110,6 +119,16 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
     setExecutionService({...executionService, spendedTimes: spendedTimes});
   }
 
+  function updateExpenses(expenses: Expense[]) {
+    setExecutionService({...executionService, expenses: expenses});
+    showSnackAlert("Despesas atualizadas com sucesso!", 'success');
+  }
+
+  function updateRevenues(revenues: Revenue[]) {
+    setExecutionService({...executionService, revenues: revenues});
+    showSnackAlert("Receitas atualizadas com sucesso!", 'success');
+  }
+
   function getPrecoBaseTotal() {
     let total = 0;
 
@@ -124,7 +143,7 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
       comments: props.service.comments,
       hourValue: 20.0,
       price: props.service.price,
-      deadline: moment(props.service.deadline).format("YYYY-MM-DD")
+      deadline: moment(props.service.deadline).format("yyyy-MM-DD")
     },    
     validationSchema: validationSchema,
     onSubmit: (values: any) => {
@@ -134,11 +153,11 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
       newService.customer = values.customer;
       newService.comments = values.comments;
       newService.price = values.price;
-      newService.deadline = moment(values.deadline, "YYYY-MM-DD").toDate();
+      newService.deadline = moment(values.deadline, "yyyy-MM-DD").toDate();
       newService.id = IdentityUtil.generateId();
       props.handleServiceUpdate(newService);*/
     }
-  });  
+  }); 
   
   return (
     <Container component="main" maxWidth="lg">      
@@ -278,11 +297,37 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
         </ContentCard>
 
         <ContentCard header="Horas despendidas nas tarefas:" marginTop={2}>
-            <RegisterSpendedTime clothInstances={executionService.instancedCloths} 
+            <RegisterSpendedTimeTable clothInstances={executionService.instancedCloths} 
               serviceSpendedTimes={executionService.spendedTimes}
               updateSpendedTimes={updateSpendedTimes} 
               showSnackAlert={showSnackAlert} />
         </ContentCard>
+
+        <ContentCard header="Receitas e despesas:" marginTop={2}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+
+              <TabComponent ariaLabel="Receitas e despesas"
+                tabIndex={tabIndexReceitas} handleChange={handleChangeTabReceitas}
+                tabs={
+                [
+                    <Tab label="Receitas" key={0} {...a11yPropsTab(0)} />,
+                    <Tab label="Despesas" key={1} {...a11yPropsTab(1)} />
+                  ]                
+                }
+                tabPanels={
+                  [
+                    <TabPanel value={tabIndexReceitas} index={0} key={0}>                    
+                      <RevenueTable revenues={executionService.revenues} optionsPaymentType={props.controller.paymentTypes} updateRevenues={updateRevenues} />
+                    </TabPanel>,
+                    <TabPanel value={tabIndexReceitas} index={1} key={1}>
+                        <ExpenseTable expenses={executionService.expenses} updateExpenses={updateExpenses} />
+                    </TabPanel>
+                  ]
+                } />
+              </Grid>
+            </Grid>
+        </ContentCard>        
 
         <ContentCard header="Ações:" marginTop={2}>
           <Grid container spacing={2}>
@@ -292,8 +337,7 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
               </Grid>          
             </Grid>
           </Grid> 
-        </ContentCard>              
-      
+        </ContentCard>      
 
       {messageSnackAlert &&
         <Snackbar open={openSnackAlert} onClose={handleCloseSnackAlert}>          

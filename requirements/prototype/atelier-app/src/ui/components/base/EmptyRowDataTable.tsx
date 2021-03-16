@@ -2,13 +2,13 @@ import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import Typography from '@material-ui/core/Typography';
 
-interface EmptyTableDataProps {
+interface EmptyRowDataTableProps {
     message: string,
     data: any[] | null,
     colSpan: number
 }
 
-export default function EmptyTableData(props: EmptyTableDataProps) {
+export default function EmptyRowDataTable(props: EmptyRowDataTableProps) {
     if (props.data && props.data.length > 0)
         return null;
 
