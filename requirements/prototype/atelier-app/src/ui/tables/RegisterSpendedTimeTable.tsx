@@ -58,8 +58,6 @@ import { SpendTime } from 'src/model/SpendTime';
             errors = {...errors, inputManualEndSpendTime: "Horário fim já informado. Utilize a opção manual para atualizar as horas despendidas."};
     }
 
-    console.log(errors);
-
     return errors;
   };  
 

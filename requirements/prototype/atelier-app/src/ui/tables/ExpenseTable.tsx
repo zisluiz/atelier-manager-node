@@ -90,7 +90,7 @@ const ExpenseTable = (props:ExpenseTableProps) => {
                     handleSave={handleSaveExpense} handleClose={handleCloseDialog} 
                     title={!selectedRow ? "" : (selectedRow.id == 0 ? "Cadastrar nova despesa" : "Editar despesa \"" + selectedRow.description + "\"")} />}
 
-            <Button variant="contained" color="secondary" component="span" onClick={ openNewExpense }>Nova Despesa</Button>
+            <Button variant="contained" color="primary" component="span" onClick={ openNewExpense }>Nova Despesa</Button>
 
             <TableContainer component={Paper}>                      
                 <Table size="medium" aria-label="Lista de despesas">

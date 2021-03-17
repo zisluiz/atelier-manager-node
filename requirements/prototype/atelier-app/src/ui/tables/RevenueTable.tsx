@@ -93,7 +93,7 @@ const RevenueTable = (props:RevenueTableProps) => {
                     handleSave={handleSaveRevenue} handleClose={handleCloseDialog} 
                     title={!selectedRow ? "" : (selectedRow.id == 0 ? "Cadastrar nova receita" : "Editar receita \"" + selectedRow.description + "\"")} />}
 
-            <Button variant="contained" color="secondary" component="span" onClick={ openNewRevenue }>Nova receita</Button>
+            <Button variant="contained" color="primary" component="span" onClick={ openNewRevenue }>Nova receita</Button>
 
             <TableContainer component={Paper}>                      
                 <Table size="medium" aria-label="Lista de receita">

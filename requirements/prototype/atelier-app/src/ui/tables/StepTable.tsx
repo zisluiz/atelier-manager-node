@@ -118,7 +118,7 @@ const StepTable = (props:StepTableProps) => {
                     handleSave={handleSaveStep} handleClose={handleCloseDialog} 
                     title={!selectedRow ? "" : (selectedRow.id == 0 ? "Cadastrar nova etapa" : "Editar etapa \"" + selectedRow.name + "\"")} />
 
-            <Button variant="contained" color="secondary" component="span" onClick={ openNewStep } >Nova Etapa</Button>
+            <Button variant="contained" color="primary" component="span" onClick={ openNewStep } >Nova Etapa</Button>
 
             <TableContainer component={Paper}>                      
                 <Table size="medium" aria-label="Lista de etapas">

@@ -98,17 +98,21 @@ export default function ServiceRequisitionForm(props: ServiceRequisitionFormProp
     },    
     validationSchema: validationSchema,
     onSubmit: (values: any) => {  
-      let newService:Service = {...props.service};
-      newService.baseService = values.baseService;
-      newService.customer = values.customer;
-      newService.comments = values.comments;
-      newService.price = values.price;
-      newService.deadline = moment(values.deadline, "yyyy-MM-DD").toDate();
-      newService.id = IdentityUtil.generateId();
+      let newService:Service = new Service(IdentityUtil.generateId(), values.baseService, values.customer, 
+          values.comments, moment(values.deadline, "yyyy-MM-DD").toDate(), values.price, props.service.clothes);
+
       props.handleServiceUpdate(newService);
     }
   });  
-  
+
+  function addNewCustomer(newCustomer: Customer) {
+    if (formik.values.customer == null || formik.values.customer.name != newCustomer.name) {
+      props.controller.customers.push(newCustomer);
+    }
+
+    formik.setFieldValue('customer', newCustomer); 
+  }
+
   return (
     <Container component="main" maxWidth="lg">
       <form id="formService" onSubmit={formik.handleSubmit} noValidate> 
@@ -136,7 +140,7 @@ export default function ServiceRequisitionForm(props: ServiceRequisitionFormProp
               onChange={(event: any, value: string | Customer | null) => { formik.setFieldValue('customer', value); }}
               errorExpression={formik.touched.customer && Boolean(formik.errors.customer)}
               helperText={formik.touched.customer && formik.errors.customer}
-              handleAddCustomer={(newCustomer: Customer) => {props.controller.customers.push(newCustomer); formik.setFieldValue('customer', newCustomer);}} />
+              handleAddCustomer={(newCustomer: Customer) => { addNewCustomer(newCustomer) }} />
 
           </Grid>
           <Grid item xs={12} sm={6}>              

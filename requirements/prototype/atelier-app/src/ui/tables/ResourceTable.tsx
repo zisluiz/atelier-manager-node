@@ -106,7 +106,7 @@ const ResourceTable = (props:ResourceTableProps) => {
                     handleSave={handleSaveResource} handleClose={handleCloseDialog} 
                     title={!selectedRow ? "" : (selectedRow.id == 0 ? "Cadastrar novo recurso" : "Editar recurso \"" + selectedRow.name + "\"")} />
 
-            <Button variant="contained" color="secondary" component="span" onClick={ openNewResource }>Novo Recurso</Button>
+            <Button variant="contained" color="primary" component="span" onClick={ openNewResource }>Novo Recurso</Button>
 
             <TableContainer component={Paper}>                      
                 <Table size="medium" aria-label="Lista de recursos">

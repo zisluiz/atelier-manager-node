@@ -2,6 +2,9 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import HelpIcon from '@material-ui/icons/Help';
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import FormDialog from 'src/ui/components/base/FormDialog';
@@ -9,6 +12,9 @@ import { CostType, Resource, getCostTypeName, getCostByTypeName } from 'src/mode
 import CurrencyRealInput from 'src/ui/components/base/CurrencyRealInput';
 import RadioButtonsGroup from 'src/ui/components/base/RadioButtonsGroup';
 import * as EnumUtil from 'src/util/EnumUtil';
+
+const tipCostApplication = 
+  "Quando o custo é FIXO, o custo é multiplicado pela quantidade de peças uma única vez. Quando o custo é por hora, o custo é multiplicado pelas horas despendidas na etapa."
 
 const validationSchema = yup.object({
     name: yup
@@ -69,7 +75,7 @@ const ResourceDialog = (props:ResourceDialogProps) => {
 
         <form id="formDialogResource" onSubmit={formik.handleSubmit} noValidate>               
           <Grid container spacing={2}>
-              <Grid item xs={12}> 
+              <Grid item xs={10}> 
                 <Autocomplete                       
                   value={formik.values.selectedResourceToCopy}
                   onChange={(event, value: Resource | null) => { handleCopySelectedResource(value); }} 
@@ -80,7 +86,7 @@ const ResourceDialog = (props:ResourceDialogProps) => {
                   renderInput={(params) => <TextField {...params} label="Recurso para copiar:" autoFocus placeholder="Recurso" variant="outlined" />} />
               </Grid> 
 
-              <Grid item xs={12}>
+              <Grid item xs={10}>
                   <TextField
                       required
                       value={formik.values.name}
@@ -93,20 +99,28 @@ const ResourceDialog = (props:ResourceDialogProps) => {
                       label="Nome:"
                       fullWidth />
               </Grid>
-              <Grid item xs={12}>
-                  <CurrencyRealInput id="resourcePrice" label="Custo:"
+              <Grid item xs={10}>
+                  <CurrencyRealInput id="resourcePrice" label="Custo (R$):"
                     required name="cost"
                     value={formik.values.cost}
                     onValueChange={ (values: any) => formik.setFieldValue('cost', values.floatValue) }
                     error={formik.touched.cost && Boolean(formik.errors.cost)}
                     helperText={formik.touched.cost && formik.errors.cost} />
               </Grid> 
-              <Grid item xs={12}>
+              <Grid item xs={2}>
+                {
+                <Tooltip title={tipCostApplication}>   
+                  <IconButton aria-label={tipCostApplication}>
+                    <HelpIcon />
+                  </IconButton>        
+                </Tooltip>}
+              </Grid>
+              <Grid item xs={10}>
                   <RadioButtonsGroup name="costType" ariaLabel="Tipo de custo:" label="Tipo de custo:" 
                     selected={formik.values.costType} options={optionsCostTypes} 
                     handleChange={ (value: string) => formik.setFieldValue('costType', value) } />
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={10}>
                 <TextField
                   id="defaultSpendTime"
                   name="defaultSpendTime"

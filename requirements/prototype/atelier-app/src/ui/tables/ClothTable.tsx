@@ -109,7 +109,7 @@ const ClothTable = (props:ClothTableProps) => {
                     optionsClothes={props.optionsClothes}
                     title={!selectedRow ? "" : (selectedRow.id == 0 ? "Cadastrar nova peça" : "Editar peça \"" + selectedRow.name + "\"")} />
 
-            <Button variant="contained" color="secondary" component="span" onClick={ openNewCloth } >Nova Peça</Button>
+            <Button variant="contained" color="primary" component="span" onClick={ openNewCloth } >Nova Peça</Button>
 
             <TableContainer component={Paper}>                      
                 <Table size="medium" aria-label="Lista de peças">

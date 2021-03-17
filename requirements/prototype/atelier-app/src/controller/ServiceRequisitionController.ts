@@ -9,6 +9,9 @@ import { ClothInstance } from 'src/model/ClothInstance';
 import { ExecutionService } from 'src/model/ExecutionService';
 import { PaymentType } from 'src/model/PaymentType';
 import { Status } from 'src/model/Status';
+import { SpendTime } from 'src/model/SpendTime';
+import * as IdentityUtil from 'src/util/IdentityUtil';
+import moment from 'moment';
 
 export default class ServiceRequisitionController {
     public customers:Customer[];
@@ -99,15 +102,43 @@ export default class ServiceRequisitionController {
     public getExecutionService(service:Service) {
         let generatedId = 1;
         let instancedCloths:ClothInstance[] = [];
-        
+
+        let dateAtMoment = new Date();        
+        let dateMoment = moment(dateAtMoment);
+        let spendedTimes: SpendTime[] = [];
+
         service.clothes.forEach( (cloth: Cloth) => {
+            let clothInstancedCloth: ClothInstance[] = [];
+
             for (let index = 0; index < cloth.quantity; index++) {
-                instancedCloths.push(new ClothInstance(generatedId, cloth.name + ` (${index+1})`, cloth));
+                const instancedCloth = new ClothInstance(generatedId, cloth.name + ` (${index+1})`, cloth);
+                instancedCloths.push(instancedCloth);
+                clothInstancedCloth.push(instancedCloth)
                 generatedId++;
             }
+
+            cloth.steps.forEach( (step: Step) => {
+                step.resources.forEach( (resource: Resource) => {
+                    if (resource.defaultSpendTime) {
+                        dateAtMoment.setMinutes(dateAtMoment.getMinutes() - 1);
+                        dateMoment = moment(dateAtMoment);
+                        const endTime = dateMoment.format("HH:mm");
+
+                        const hours = Number(resource.defaultSpendTime.split(":")[0]);
+                        const minutes = Number(resource.defaultSpendTime.split(":")[1]);
+
+                        const dateStart = dateMoment.subtract({hours: hours, minutes: minutes});
+                        const startDate = dateStart.format("HH:mm");
+                        dateAtMoment = dateStart.toDate();
+                        
+                        let spendedTime: SpendTime = new SpendTime(IdentityUtil.generateId(), clothInstancedCloth, [step], dateAtMoment, startDate, endTime);
+                        spendedTimes.push(spendedTime);
+                    }
+                });
+            });
         });
 
-        return new ExecutionService(service, 20.0, instancedCloths, [], [], [], this.statusList[0]);
+        return new ExecutionService(service, 20.0, instancedCloths, spendedTimes, [], [], this.statusList[0]);
     }
 
     public getStatusCompletedService() {

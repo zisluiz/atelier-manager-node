@@ -15,7 +15,7 @@ export default function EmptyRowDataTable(props: EmptyRowDataTableProps) {
     return (
         <TableRow>
             <TableCell colSpan={props.colSpan}>                           
-                <Typography variant="h6" align="center" gutterBottom>
+                <Typography variant="subtitle1" align="center" gutterBottom>
                 {props.message}
                 </Typography> 
             </TableCell>

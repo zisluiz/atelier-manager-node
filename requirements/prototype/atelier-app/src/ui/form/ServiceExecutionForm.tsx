@@ -11,6 +11,9 @@ import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import CategoryIcon from '@material-ui/icons/Category';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert, {Color as AlertColor} from '@material-ui/lab/Alert';
+import BuildIcon from '@material-ui/icons/Build';
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
 import moment from 'moment';
 import CurrencyRealInput from 'src/ui/components/base/CurrencyRealInput';
 import ClothTable from 'src/ui/tables/ClothTable';
@@ -34,7 +37,6 @@ import { Expense } from 'src/model/Expense';
 import ExpenseTable from 'src/ui/tables/ExpenseTable';
 import { Revenue } from 'src/model/Revenue';
 import RevenueTable from '../tables/RevenueTable';
-import { Resource } from 'src/model/Resource';
 
 const useStyles = makeStyles({
   root: {
@@ -45,6 +47,13 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "column",
     justifyContent: "center"
+  },
+  serviceReturned: {
+    color: "red",
+    height: "100%"
+  },
+  containerFullHeight: {
+    height: "100%"
   }
 });
 
@@ -112,8 +121,13 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
     setMessageSnackAlert(alert);
   }
 
-  function handleUpdateClothes(clothes: Cloth[]) {
-    props.handleServiceUpdate({...props.service, clothes: clothes});
+  function handleUpdateClothes(clothes: Cloth[]) {    
+    const service = new Service(props.service.id, props.service.baseService, props.service.customer, 
+      props.service.comments, props.service.deadline, props.service.price, clothes);
+
+    showSnackAlert("Peças atualizadas com sucesso!", 'success');
+
+    props.handleServiceUpdate(service);
   }
 
   function updateSpendedTimes(spendedTimes: SpendTime[]) {
@@ -143,7 +157,7 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
   }  
 
   function returnedService() {
-    setExecutionService({...executionService, status: props.controller.getStatusProgressService()});
+    setExecutionService({...executionService, status: props.controller.getStatusProgressService(), serviceReturned: true});
   }   
 
   function getPrecoBaseTotal() {
@@ -159,9 +173,10 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
 
     executionService.expenses.forEach( (expense:Expense) => total += expense.value);
 
+    total += props.service.getFixedResourceCosts();
+
     executionService.spendedTimes.map( (spendedTime: SpendTime) => {
-      total += formik.values.hourValue * spendedTime.getSpendedHours();
-      total += props.service.getFixedResourceCosts();
+      total += formik.values.hourValue * spendedTime.getSpendedHours();      
       total += spendedTime.getSpendedResourcesCost();
     });
 
@@ -172,7 +187,15 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
     let total = 0;
     executionService.revenues.forEach( (revenue:Revenue) => total += revenue.getNetValue());
     return total;
-  }  
+  }
+
+  function addNewCustomer(newCustomer: Customer) {
+    if (formik.values.customer == null || formik.values.customer.name != newCustomer.name) {
+      props.controller.customers.push(newCustomer); showSnackAlert("Cliente adicionado com sucesso!", 'success');
+    }
+
+    formik.setFieldValue('customer', newCustomer); 
+  }
 
   const formik = useFormik<{ customer: Customer | null, comments: string, hourValue: number, price: number, deadline: string}>({    
     initialValues: { 
@@ -189,28 +212,50 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
 
       props.handleServiceUpdate(changedService);
       setExecutionService({...executionService, hourValue: values.hourValue, service: changedService});
+      showSnackAlert("Serviço atualizado com sucesso!", "success");
     }
-  }); 
+  });
+  
+  const precoBaseTotal = getPrecoBaseTotal();
+  const custoEstimado = getCustoEstimado();
+  const valorRecebido = getValorRecebido();
+  const valorCobradoColor = formik.values.price > custoEstimado && formik.values.price > precoBaseTotal ? "green" :
+      formik.values.price < custoEstimado || formik.values.price < precoBaseTotal ? "red" : "";
   
   return (
     <Container component="main" maxWidth="lg">      
       <Grid container spacing={2} >
-          <Grid item xs={12} sm={4}>      
-            <Typography variant="h4" align="center" gutterBottom className={classes.titlePage} >
-              Execução de serviço
-            </Typography>
+          <Grid item xs={12} sm={4}>  
+
+            <Grid container className={classes.containerFullHeight}>
+              <Grid item xs={11}>                
+                <Typography variant="h4" align="center" gutterBottom className={classes.titlePage} component="span">
+                  Execução de serviço #{executionService.service.id}
+                </Typography>
+              </Grid>
+              <Grid item xs={1}>
+                {
+                  executionService.serviceReturned &&                                
+                  <Tooltip title="Serviço com retorno de ajustes">   
+                    <IconButton aria-label="Serviço com retorno de ajustes" className={classes.serviceReturned}>
+                      <BuildIcon />
+                    </IconButton>        
+                  </Tooltip>
+                }
+              </Grid>
+            </Grid>
+          </Grid>          
+          <Grid item xs={6} sm={2}>  
+              <PriceCard label="Valor base" value={precoBaseTotal} toolTip="Valor base é calculado através do valor unitário das peças * a sua quantidade." />
           </Grid>
-          <Grid item xs={3} sm={2}>  
-              <PriceCard label="Valor base" value={getPrecoBaseTotal()} toolTip="Valor base é calculado através do valor unitário das peças * a sua quantidade." />
+          <Grid item xs={6} sm={2}>     
+            <PriceCard label="Preço cobrado" value={formik.values.price} valueColor={valorCobradoColor} toolTip="Preço informado ao cliente." />
           </Grid>
-          <Grid item xs={3} sm={2}>     
-            <PriceCard label="Valor cobrado" value={formik.values.price} />
+          <Grid item xs={6} sm={2}>     
+            <PriceCard label="Custo estimado" value={custoEstimado} toolTip="Custo estimado é calculado através das despesas cadastradas + os recursos fixos (multiplicados pela quantidade de peças) + os recursos utilizados (horas despendidas nas etapas * valor/hora)." />
           </Grid>
-          <Grid item xs={3} sm={2}>     
-            <PriceCard label="Custo estimado" value={getCustoEstimado()} toolTip="Custo estimado é calculado através das despesas cadastradas + os recursos fixos (multiplicados pela quantidade de peças) + os recursos utilizados (horas despendidas nas etapas * valor/hora)." />
-          </Grid>
-          <Grid item xs={3} sm={2}>     
-            <PriceCard label="Valor recebido" value={getValorRecebido()} toolTip="Valor recebido é a soma das receitas cadastradas." />
+          <Grid item xs={6} sm={2}>     
+            <PriceCard label="Valor recebido" value={valorRecebido} toolTip="Valor recebido é a soma das receitas cadastradas." />
           </Grid>                    
         </Grid>
 
@@ -230,24 +275,24 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
                   onChange={(event: any, value: string | Customer | null) => { formik.setFieldValue('customer', value); }}
                   errorExpression={formik.touched.customer && Boolean(formik.errors.customer)}
                   helperText={formik.touched.customer && formik.errors.customer}
-                  handleAddCustomer={(newCustomer: Customer) => {props.controller.customers.push(newCustomer); formik.setFieldValue('customer', newCustomer); showSnackAlert("Cliente adicionado com sucesso!", 'success')}} />
+                  handleAddCustomer={(newCustomer: Customer) => { addNewCustomer(newCustomer) }} />
 
               </Grid>
-              <Grid item xs={4}> 
+              <Grid item xs={6} sm={4}> 
                 <CurrencyRealInput id="inputHourValue" label="Valor/hora:" required 
                     value={formik.values.hourValue}
                     onValueChange={ (values: any) => formik.setFieldValue('hourValue', values.floatValue) }
                     error={formik.touched.hourValue && Boolean(formik.errors.hourValue)}
                     helperText={formik.touched.hourValue && formik.errors.hourValue} />
               </Grid>                    
-              <Grid item xs={4}> 
-                <CurrencyRealInput id="inputPrice" label="Preço:" required 
+              <Grid item xs={6} sm={4}> 
+                <CurrencyRealInput id="inputPrice" label="Preço cobrado:" required 
                     value={formik.values.price}
                     onValueChange={ (values: any) => formik.setFieldValue('price', values.floatValue) }
                     error={formik.touched.price && Boolean(formik.errors.price)}
                     helperText={formik.touched.price && formik.errors.price} />
               </Grid>          
-              <Grid item xs={4}>            
+              <Grid item xs={12} sm={4}>            
                 <TextField
                   id="inputDeadline"
                   label="Prazo de conclusão:"
@@ -290,8 +335,12 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
                 </label>
               </Grid>
               <Grid item xs={12}>
-                  <Button color="primary" type="submit" variant="contained">Salvar</Button>
-                </Grid>            
+                <Grid container spacing={2} justify="flex-end" style={{width: "100%"}}>
+                  <Grid item xs={3} sm={1}>
+                      <Button color="primary" type="submit" variant="contained">Salvar</Button>
+                  </Grid> 
+                </Grid>           
+              </Grid>
             </Grid>
           </form>
          </ContentCard>
@@ -365,16 +414,16 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
         <ContentCard header="Ações:" marginTop={2}>
           <Grid container spacing={2}>            
             <Grid container justify="flex-end">
-              <Grid item xs={2}>                            
+              <Grid item sm={2} xm={4}>                            
                 {executionService.status.id === 2 ? <Button color="primary" variant="contained" onClick={ () => payedService()}>Serviço pago</Button> : null}
               </Grid>    
-              <Grid item xs={2}>            
+              <Grid item sm={2} xm={4}>            
                 {(executionService.status.id > 1) ? 
                   <Button color="primary" variant="contained" onClick={ () => reopenService()}>Reabrir serviço</Button> : null}
               </Grid>
-              <Grid item xs={2}>            
+              <Grid item sm={2} xm={4}>            
                 {executionService.status.id === 1 ? <Button color="primary" variant="contained" onClick={ () => completeService()}>Concluir serviço</Button> : null}
-                {(executionService.status.id > 1) ? 
+                {(executionService.status.id > 1 && !executionService.serviceReturned) ? 
                   <Button color="primary" variant="contained" onClick={ () => returnedService()}>Retorno de serviço</Button> : null}
               </Grid>              
             </Grid>

@@ -7,7 +7,6 @@ import CurrencyRealOutput from 'src/ui/components/base/CurrencyRealOutput';
 import HelpIcon from '@material-ui/icons/Help';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
-import Grid from '@material-ui/core/Grid';
 
 const useStyles = makeStyles({
   root: {
@@ -26,7 +25,8 @@ const useStyles = makeStyles({
 interface PriceCardProps {
     label: string,
     value: number,
-    toolTip?: string
+    toolTip?: string,
+    valueColor?: string
 }
 
 export default function PriceCard(props: PriceCardProps) {
@@ -35,7 +35,7 @@ export default function PriceCard(props: PriceCardProps) {
   return (
     <Card className={classes.root} elevation={3}>      
       <CardContent>        
-        <Typography className={classes.title} color="textSecondary" component="span" >
+        <Typography className={classes.title} color="textSecondary" component="span" style={props.valueColor ? { color: props.valueColor} : {}}>
           {props.label}
         </Typography>
         {props.toolTip && 
@@ -46,7 +46,7 @@ export default function PriceCard(props: PriceCardProps) {
         </Tooltip>}  
 
       <Typography variant="h5" component="h2">
-          <CurrencyRealOutput value={props.value} prefix={'R$ '} />
+          <CurrencyRealOutput value={props.value} prefix={'R$ '} style={props.valueColor ? { color: props.valueColor} : {}} />
       </Typography>
 
       </CardContent>

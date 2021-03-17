@@ -36,7 +36,7 @@ const CustomerInput = (props: CustomerInputProps) => {
             </Grid>
             <Grid item xs={1}>      
             <IconButton aria-label="add" title="Criar novo cliente" color="secondary" 
-                onClick={() => { if (!inputCustomerRef.current) return; let newCustomer = { name: inputCustomerRef.current.value}; props.handleAddCustomer(newCustomer); }} >
+                onClick={() => { if (!inputCustomerRef.current) return; let newCustomer = new Customer(inputCustomerRef.current.value); props.handleAddCustomer(newCustomer); }} >
                 <AddBoxIcon fontSize="large" />
             </IconButton> 
             </Grid>
