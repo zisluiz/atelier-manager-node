@@ -1,5 +1,7 @@
-import Button from '@material-ui/core/Button';
 import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import theme from 'src/theme';
+import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Typography from '@material-ui/core/Typography';
@@ -25,7 +27,19 @@ import { ClothInstance } from 'src/model/ClothInstance';
 import { Step } from 'src/model/Step';
 import { SpendTime } from 'src/model/SpendTime';
 
-  const validate = (values: RegisterSpendedTimeInputs) => {    
+const useStyles = makeStyles({
+    root: {    
+      [theme.breakpoints.down('sm')]: {
+        maxWidth: "700px"
+      }
+    }, columnOption: {    
+        [theme.breakpoints.up('sm')]: {
+          width: "120px"
+        }
+    }
+  });
+
+const validate = (values: RegisterSpendedTimeInputs) => {    
     let errors = {};
 
     const isManuallySubmition = values.submitionType == "manual";
@@ -87,6 +101,7 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
     const [messageAlertDialog, setMessageAlertDialog] = React.useState("");
     const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false);
     const formRef = React.createRef<HTMLFormElement>();
+    const classes = useStyles();
     
     const formik = useFormik<RegisterSpendedTimeInputs>({    
         initialValues: { 
@@ -219,7 +234,7 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
         <>
     <form ref={formRef} id="formSpendTime" onSubmit={formik.handleSubmit} noValidate>        
         <Grid container spacing={2}>
-            <Grid item xs={5}>
+            <Grid item xs={12} sm={5}>
                 <Autocomplete                        
                         value={formik.values.selectedClothInstances}
                         onChange={(event, values) => { updateSelectedCloths(values); }}
@@ -234,7 +249,7 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                                     error={formik.touched.selectedClothInstances && Boolean(formik.errors.selectedClothInstances)}
                                     helperText={formik.touched.selectedClothInstances && formik.errors.selectedClothInstances} />} />            
             </Grid>
-            <Grid item xs={5}>
+            <Grid item xs={12} sm={5}>
                 <Autocomplete                        
                         value={formik.values.selectedSteps}
                         onChange={(event, values) => { formik.setFieldValue('selectedSteps', values); }}
@@ -249,20 +264,20 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                                     error={formik.touched.selectedSteps && Boolean(formik.errors.selectedSteps)}
                                     helperText={formik.touched.selectedSteps && formik.errors.selectedSteps} />} />            
             </Grid>        
-            <Grid item xs={2}>            
+            <Grid item xs={12} sm={2}>            
                 <Button color="primary" variant="contained" onClick={ () => clearInputs() }>Limpar</Button>
             </Grid>
-            <Grid item xs={3}>            
+            <Grid item xs={12}>            
                 <Button color="primary" variant="contained" type="button"
                     onClick={ (e: any) => { callSubmit("auto"); } }>
                     {formik.values.selectedSpendedTime == null ? "Iniciar" : "Parar"} cronômetro</Button>
             </Grid> 
-            <Grid item xs={2}>            
+            <Grid item xs={12} sm={3}>            
                 <Typography variant="h6" align="center">
                     Inclusão manual:
                 </Typography>            
             </Grid> 
-            <Grid item xs={2}>            
+            <Grid item xs={12} sm={2}>            
                 <TextField
                         id="inputManualSpendTimeDate"
                         label="Data:"
@@ -278,7 +293,7 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                         }}
                         />                       
             </Grid>
-            <Grid item xs={2}>            
+            <Grid item xs={6} sm={2}>            
                 <TextField
                         id="inputManualStartSpendTime"
                         name="inputManualStartSpendTime"
@@ -297,7 +312,7 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                             step: 300, // 5 min
                         }} />                      
             </Grid>
-            <Grid item xs={2}>            
+            <Grid item xs={6} sm={2}>            
                 <TextField
                         id="inputManualEndSpendTime"
                         name="inputManualEndSpendTime"
@@ -316,19 +331,19 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                             step: 300, // 5 min
                         }} />                      
             </Grid>                 
-            <Grid item xs={1}>            
+            <Grid item xs={12} sm={2}>            
                 <Button color="primary" variant="contained" type="button"
                     onClick={ (e: any) => { callSubmit("manual"); } }>{formik.values.selectedSpendedTime == null ? "Incluir" : "Atualizar"}</Button>
             </Grid> 
             <Grid item xs={12}>
-                <TableContainer component={Paper}>                      
+                <TableContainer component={Paper} className={classes.root}>                      
                     <Table size="medium" aria-label="Lista de horas despendidas">
                     <TableHead>
                         <TableRow>
                         <TableCell>Peças</TableCell>
                         <TableCell align="center">Etapas</TableCell>
                         <TableCell align="center">Tempo</TableCell>
-                        <TableCell align="center" width={120}>Opções</TableCell>
+                        <TableCell align="center" className={classes.columnOption}>Opções</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -343,12 +358,12 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                             <TableCell align="center">{row.getSpendedTime()}</TableCell>
                             <TableCell align="center">
                                 <Grid container>
-                                    <Grid item xs={6}>
+                                    <Grid item xs={12} sm={6}>
                                     <IconButton aria-label="edit" title="Editar tempo despendido" color="secondary" onClick={ () => editSpendedTime(row) }>
                                         <EditIcon />
                                     </IconButton> 
                                     </Grid>
-                                    <Grid item xs={6}>                                
+                                    <Grid item xs={12} sm={6}>                                
                                         <IconButton aria-label="delete" title="Excluir recurso" color="secondary" 
                                             onClick={ () => alertDialog(row) }>
                                             <DeleteForeverIcon />

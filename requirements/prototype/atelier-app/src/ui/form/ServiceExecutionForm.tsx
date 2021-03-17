@@ -346,36 +346,31 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
          </ContentCard>
 
          <ContentCard header="Especificação dos trabalhos:" marginTop={2}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-
-              <TabComponent ariaLabel="Especificação dos trabalhos"
-                tabIndex={tabIndex} handleChange={handleChangeTab}
-                tabs={
+            <TabComponent ariaLabel="Especificação dos trabalhos"
+              tabIndex={tabIndex} handleChange={handleChangeTab}
+              tabs={
+              [
+                  <Tab icon={<CategoryIcon />} label="Peças" key={0} {...a11yPropsTab(0)} />,
+                  <Tab icon={<FormatListNumberedIcon />} label="Etapas" disabled={selectedCloth == null} key={1} {...a11yPropsTab(1)} />,
+                  <Tab icon={<MonetizationOnIcon />} label="Recursos" disabled={selectedStep == null} {...a11yPropsTab(2)} key={2} />
+                ]                
+              }
+              tabPanels={
                 [
-                    <Tab icon={<CategoryIcon />} label="Peças" key={0} {...a11yPropsTab(0)} />,
-                    <Tab icon={<FormatListNumberedIcon />} label="Etapas" disabled={selectedCloth == null} key={1} {...a11yPropsTab(1)} />,
-                    <Tab icon={<MonetizationOnIcon />} label="Recursos" disabled={selectedStep == null} {...a11yPropsTab(2)} key={2} />
-                  ]                
-                }
-                tabPanels={
-                  [
-                    <TabPanel value={tabIndex} index={0} key={0}>                    
-                      <ClothTable serviceTypes={props.controller.serviceTypes} handleClothSelection={handleClothSelection} controller={props.controller} 
-                        clothes={props.service.clothes} handleUpdateClothes={handleUpdateClothes}
-                        optionsClothes={props.controller.clothes} />
-                    </TabPanel>,
-                    <TabPanel value={tabIndex} index={1} key={1}>
-                      <StepTable cloth={selectedCloth} optionsBaseSteps={props.controller.baseSteps} 
-                        handleStepSelection={handleStepSelection} controller={props.controller} />
-                    </TabPanel>,
-                    <TabPanel value={tabIndex} index={2} key={2}>
-                      <ResourceTable step={selectedStep} optionsBaseResources={props.controller.baseResources} controller={props.controller} />
-                    </TabPanel> 
-                  ]
-                } />
-              </Grid>
-            </Grid>
+                  <TabPanel value={tabIndex} index={0} key={0}>                    
+                    <ClothTable serviceTypes={props.controller.serviceTypes} handleClothSelection={handleClothSelection} controller={props.controller} 
+                      clothes={props.service.clothes} handleUpdateClothes={handleUpdateClothes}
+                      optionsClothes={props.controller.clothes} />
+                  </TabPanel>,
+                  <TabPanel value={tabIndex} index={1} key={1}>
+                    <StepTable cloth={selectedCloth} optionsBaseSteps={props.controller.baseSteps} 
+                      handleStepSelection={handleStepSelection} controller={props.controller} />
+                  </TabPanel>,
+                  <TabPanel value={tabIndex} index={2} key={2}>
+                    <ResourceTable step={selectedStep} optionsBaseResources={props.controller.baseResources} controller={props.controller} />
+                  </TabPanel> 
+                ]
+              } />
         </ContentCard>
 
         <ContentCard header="Horas despendidas nas tarefas:" marginTop={2}>
@@ -386,42 +381,37 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
         </ContentCard>
 
         <ContentCard header="Receitas e despesas:" marginTop={2}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-
-              <TabComponent ariaLabel="Receitas e despesas"
-                tabIndex={tabIndexReceitas} handleChange={handleChangeTabReceitas}
-                tabs={
-                  [
-                    <Tab label="Receitas" key={0} {...a11yPropsTab(0)} />,
-                    <Tab label="Despesas" key={1} {...a11yPropsTab(1)} />
-                  ]                
-                }
-                tabPanels={
-                  [
-                    <TabPanel value={tabIndexReceitas} index={0} key={0}>                    
-                      <RevenueTable revenues={executionService.revenues} optionsPaymentType={props.controller.paymentTypes} updateRevenues={updateRevenues} />
-                    </TabPanel>,
-                    <TabPanel value={tabIndexReceitas} index={1} key={1}>
-                        <ExpenseTable expenses={executionService.expenses} updateExpenses={updateExpenses} />
-                    </TabPanel>
-                  ]
-                } />
-              </Grid>
-            </Grid>
+            <TabComponent ariaLabel="Receitas e despesas"
+              tabIndex={tabIndexReceitas} handleChange={handleChangeTabReceitas}
+              tabs={
+                [
+                  <Tab label="Receitas" key={0} {...a11yPropsTab(0)} />,
+                  <Tab label="Despesas" key={1} {...a11yPropsTab(1)} />
+                ]                
+              }
+              tabPanels={
+                [
+                  <TabPanel value={tabIndexReceitas} index={0} key={0}>                    
+                    <RevenueTable revenues={executionService.revenues} optionsPaymentType={props.controller.paymentTypes} updateRevenues={updateRevenues} />
+                  </TabPanel>,
+                  <TabPanel value={tabIndexReceitas} index={1} key={1}>
+                      <ExpenseTable expenses={executionService.expenses} updateExpenses={updateExpenses} />
+                  </TabPanel>
+                ]
+              } />
         </ContentCard>        
 
         <ContentCard header="Ações:" marginTop={2}>
           <Grid container spacing={2}>            
             <Grid container justify="flex-end">
-              <Grid item sm={2} xm={4}>                            
+              <Grid item sm={2} xs={4}>                            
                 {executionService.status.id === 2 ? <Button color="primary" variant="contained" onClick={ () => payedService()}>Serviço pago</Button> : null}
               </Grid>    
-              <Grid item sm={2} xm={4}>            
+              <Grid item sm={2} xs={4}>            
                 {(executionService.status.id > 1) ? 
                   <Button color="primary" variant="contained" onClick={ () => reopenService()}>Reabrir serviço</Button> : null}
               </Grid>
-              <Grid item sm={2} xm={4}>            
+              <Grid item sm={2} xs={4}>            
                 {executionService.status.id === 1 ? <Button color="primary" variant="contained" onClick={ () => completeService()}>Concluir serviço</Button> : null}
                 {(executionService.status.id > 1 && !executionService.serviceReturned) ? 
                   <Button color="primary" variant="contained" onClick={ () => returnedService()}>Retorno de serviço</Button> : null}

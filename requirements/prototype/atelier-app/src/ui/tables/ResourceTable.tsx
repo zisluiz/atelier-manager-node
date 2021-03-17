@@ -1,6 +1,7 @@
 import Button from '@material-ui/core/Button';
 import React from 'react';
-import Container from '@material-ui/core/Container';
+import { makeStyles } from '@material-ui/core/styles';
+import theme from 'src/theme';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -23,6 +24,18 @@ import EmptyRowDataTable from 'src/ui/components/base/EmptyRowDataTable';
 import CurrencyRealOutput from 'src/ui/components/base/CurrencyRealOutput';
 import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
+const useStyles = makeStyles({
+    root: {    
+      [theme.breakpoints.down('sm')]: {
+        maxWidth: "700px"
+      }
+    }, columnOption: {    
+        [theme.breakpoints.up('sm')]: {
+          width: "140px"
+        }
+    }
+  });
+
 interface ResourceTableProps {
     step:Step | null,
     optionsBaseResources:Resource[],
@@ -36,17 +49,14 @@ const ResourceTable = (props:ResourceTableProps) => {
     const [resources, setResources] = React.useState(props.step ? props.step.resources : []);
     const [messageAlertDialog, setMessageAlertDialog] = React.useState("");
     const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false);
-
-    let isEdittingRow = false;
+    const classes = useStyles();
 
     function openNewResource() {
-        isEdittingRow = false;
         setSelectedRow(createNewResource());
         setIsDialogOpen(true);
     }
 
-    function openEditResource(resourceToEdit:Resource) {        
-        isEdittingRow = true;
+    function openEditResource(resourceToEdit:Resource) { 
         setSelectedRow(resourceToEdit);
         setIsDialogOpen(true);
     }
@@ -97,7 +107,7 @@ const ResourceTable = (props:ResourceTableProps) => {
     }
 
     return(
-        <Container maxWidth="lg">
+        <>
             <Typography variant="h4" align="center" gutterBottom>
                 Etapa: {props.step && props.step.name}
             </Typography> 
@@ -108,14 +118,14 @@ const ResourceTable = (props:ResourceTableProps) => {
 
             <Button variant="contained" color="primary" component="span" onClick={ openNewResource }>Novo Recurso</Button>
 
-            <TableContainer component={Paper}>                      
+            <TableContainer component={Paper} className={classes.root}>                      
                 <Table size="medium" aria-label="Lista de recursos">
                 <TableHead>
                     <TableRow>
                     <TableCell>Nome do recurso</TableCell>
                     <TableCell align="center">Custo (R$)</TableCell>
                     <TableCell align="center">Tempo padrão gasto (em horas)</TableCell>
-                    <TableCell align="center" width={140}>Opções</TableCell>
+                    <TableCell align="center"className={classes.columnOption}>Opções</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -130,12 +140,12 @@ const ResourceTable = (props:ResourceTableProps) => {
                         <TableCell align="center">{row.defaultSpendTime} </TableCell>
                         <TableCell align="center">
                             <Grid container>
-                                <Grid item xs={6}>
+                                <Grid item xs={12} sm={6}>
                                 <IconButton aria-label="edit" title="Editar recurso" color="secondary" onClick={ () => openEditResource(row) }>
                                     <EditIcon />
                                 </IconButton> 
                                 </Grid>
-                                <Grid item xs={6}>                                
+                                <Grid item xs={12} sm={6}>                                
                                     <IconButton aria-label="delete" title="Excluir recurso" color="secondary" 
                                         onClick={ () => alertDialog(row) }>
                                         <DeleteForeverIcon />
@@ -151,7 +161,7 @@ const ResourceTable = (props:ResourceTableProps) => {
 
             <AlertDialog open={isAlertDialogOpen} title="Confirmação de exclusão" message={messageAlertDialog} 
                 handleClose={closeAlertDialog} handleConfirm={ removeResource } />
-        </Container>
+        </>
     );
 };
 

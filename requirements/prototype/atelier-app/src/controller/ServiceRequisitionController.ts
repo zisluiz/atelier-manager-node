@@ -30,16 +30,17 @@ export default class ServiceRequisitionController {
         const serviceTypeCustomMade:ServiceType = new ServiceType('Sob-medida', '#8bc34a');
         const serviceTypeFix:ServiceType = new ServiceType('Ajuste', '#cddc39');
         const serviceTypeReturn:ServiceType = new ServiceType('Retorno', 'red');
+        const serviceProducao:ServiceType = new ServiceType('Produção', '#5393ff');
       
-        this.serviceTypes = [serviceTypeModeling, serviceTypeCustomMade, serviceTypeFix, serviceTypeReturn];
+        this.serviceTypes = [serviceTypeModeling, serviceTypeCustomMade, serviceTypeFix, serviceTypeReturn, serviceProducao];
 
-        const resourceAtendimentoPresencial = new Resource(1, "Atendimento presencial", 0, CostType.FIXED, "00:10:00");
+        const resourceAtendimentoPresencial = new Resource(1, "Atendimento presencial", 0, CostType.FIXED, "00:10");
         const resourceDesmanche = new Resource(2, "Desmanche", 1.00, CostType.BY_HOUR);
         const resourceTesoura = new Resource(3, "Tesoura", 0.50, CostType.BY_HOUR);
         const resourceMaquinas = new Resource(4, "Máquinas", 2.00, CostType.BY_HOUR);
         const resourceImpressao = new Resource(5, "Impressão", 10.00, CostType.FIXED);
         const resourceSistemaModelagem = new Resource(6, "Sistema de Modelagem", 5.00, CostType.BY_HOUR);
-        const resourceEntregaPresencial = new Resource(7, "Entrega presencial", 0, CostType.FIXED, "00:10:00");
+        const resourceEntregaPresencial = new Resource(7, "Entrega presencial", 0, CostType.FIXED, "00:10");
       
         this.baseResources = [resourceAtendimentoPresencial, resourceDesmanche, resourceTesoura, resourceMaquinas, resourceImpressao, 
             resourceSistemaModelagem, resourceEntregaPresencial];
@@ -57,16 +58,22 @@ export default class ServiceRequisitionController {
         const steps3:Step[] = [ new Step(1, 'Atendimento', [resourceAtendimentoPresencial]), 
                 new Step(3, 'Modelagem', [resourceSistemaModelagem, resourceImpressao]), new Step(4, 'Corte', [resourceTesoura]), 
                 new Step(5, 'Costura', [resourceMaquinas]), new Step(6, 'Entrega', [resourceEntregaPresencial]) ];            
+        const stepsProducao:Step[] = [ new Step(7, 'Atendimento', [resourceAtendimentoPresencial]), 
+                new Step(8, 'Corte', [resourceTesoura]), 
+                new Step(9, 'Costura', [resourceMaquinas]), new Step(10, 'Entrega', [resourceEntregaPresencial]) ];            
 
 
         const clothCamisaBranca = new Cloth(1, 'Camisa Branca', 3, 40.0, [ serviceTypeModeling, serviceTypeCustomMade ], steps1 );        
         const clothCalca = new Cloth(2, 'Calça', 1, 20.0, [ serviceTypeFix ], steps2 );
         const clothVestido = new Cloth(3, 'Vestido', 1, 120.0, [ serviceTypeCustomMade ], steps3 );
         const clothSaia = new Cloth(4, 'Barra de Saia', 1, 20.0, [ serviceTypeFix ], steps2 );
-        this.clothes = [ clothCamisaBranca, clothCalca, clothVestido, clothSaia];
+        const clothProducaoPeca = new Cloth(5, 'Produção de peça', 5, 50.0, [ serviceProducao ], stepsProducao );
+        this.clothes = [ clothCamisaBranca, clothCalca, clothVestido, clothSaia, clothProducaoPeca];
 
         this.baseServices = [ new BaseService('Modelagem', [clothCamisaBranca]), new BaseService('Sob-medida', [clothVestido]), 
-            new BaseService('Ajuste de calça', [clothCalca]), new BaseService('Barra de saia', [clothSaia]), new BaseService('Sob-medida e ajuste', [clothVestido, clothSaia])];
+            new BaseService('Ajuste de calça', [clothCalca]), new BaseService('Barra de saia', [clothSaia]), 
+            new BaseService('Sob-medida e ajuste', [clothVestido, clothSaia]),
+            new BaseService('Produção de peça', [clothProducaoPeca])];
 
         this.paymentTypes = [ new PaymentType(1, "Dinheiro", 0.00), new PaymentType(2, "Cartão", 0.03)];
 

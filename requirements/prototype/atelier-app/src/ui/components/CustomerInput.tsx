@@ -20,7 +20,7 @@ const CustomerInput = (props: CustomerInputProps) => {
 
     return(
         <Grid container>
-            <Grid item xs={11}>            
+            <Grid item xs={10} sm={11}>            
                 <Autocomplete
                 id="autocomplete-customers"  
                 noOptionsText="Cliente não encontrado!"                    
@@ -34,7 +34,7 @@ const CustomerInput = (props: CustomerInputProps) => {
                     helperText={props.helperText} />}
                 />
             </Grid>
-            <Grid item xs={1}>      
+            <Grid item xs={2} sm={1}>      
             <IconButton aria-label="add" title="Criar novo cliente" color="secondary" 
                 onClick={() => { if (!inputCustomerRef.current) return; let newCustomer = new Customer(inputCustomerRef.current.value); props.handleAddCustomer(newCustomer); }} >
                 <AddBoxIcon fontSize="large" />

@@ -1,6 +1,7 @@
 import Button from '@material-ui/core/Button';
 import React from 'react';
-import Container from '@material-ui/core/Container';
+import { makeStyles } from '@material-ui/core/styles';
+import theme from 'src/theme';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -21,6 +22,18 @@ import CurrencyRealOutput from 'src/ui/components/base/CurrencyRealOutput';
 import { Revenue } from 'src/model/Revenue';
 import { PaymentType } from 'src/model/PaymentType';
 
+const useStyles = makeStyles({
+    root: {    
+      [theme.breakpoints.down('sm')]: {
+        maxWidth: "700px"
+      }
+    }, columnOption: {    
+        [theme.breakpoints.up('sm')]: {
+          width: "120px"
+        }
+    }
+});
+
 interface RevenueTableProps {    
     revenues: Revenue[],
     optionsPaymentType: PaymentType[],
@@ -33,17 +46,14 @@ const RevenueTable = (props:RevenueTableProps) => {
     const [revenueToRemove, setRevenueToRemove] = React.useState<Revenue | null>(null);
     const [messageAlertDialog, setMessageAlertDialog] = React.useState("");
     const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false);
-
-    let isEdittingRow = false;
+    const classes = useStyles();
 
     function openNewRevenue() {
-        isEdittingRow = false;
         setSelectedRow(createNewRevenue());
         setIsDialogOpen(true);
     }
 
-    function openEditRevenue(revenueToEdit:Revenue) {        
-        isEdittingRow = true;
+    function openEditRevenue(revenueToEdit:Revenue) {
         setSelectedRow(revenueToEdit);
         setIsDialogOpen(true);
     }
@@ -86,7 +96,7 @@ const RevenueTable = (props:RevenueTableProps) => {
     }
 
     return(
-        <Container maxWidth="lg">
+        <>
             {selectedRow &&
             <RevenueDialog open={isDialogOpen} selectedRevenue={selectedRow}
                     optionsPaymentType={props.optionsPaymentType}
@@ -95,7 +105,7 @@ const RevenueTable = (props:RevenueTableProps) => {
 
             <Button variant="contained" color="primary" component="span" onClick={ openNewRevenue }>Nova receita</Button>
 
-            <TableContainer component={Paper}>                      
+            <TableContainer component={Paper} className={classes.root}>                      
                 <Table size="medium" aria-label="Lista de receita">
                 <TableHead>
                     <TableRow>
@@ -103,7 +113,7 @@ const RevenueTable = (props:RevenueTableProps) => {
                     <TableCell align="center">Valor (R$)</TableCell>
                     <TableCell align="center">Forma de pagamento</TableCell>
                     <TableCell align="center">Valor líquido (R$)</TableCell>
-                    <TableCell align="center" width={140}>Opções</TableCell>
+                    <TableCell align="center" className={classes.columnOption}>Opções</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -119,12 +129,12 @@ const RevenueTable = (props:RevenueTableProps) => {
                         <TableCell align="right"><CurrencyRealOutput value={row.getNetValue()} /></TableCell>
                         <TableCell align="center">
                             <Grid container>
-                                <Grid item xs={6}>
+                                <Grid item xs={12} sm={6}>
                                 <IconButton aria-label="edit" title="Editar receita" color="secondary" onClick={ () => openEditRevenue(row) }>
                                     <EditIcon />
                                 </IconButton> 
                                 </Grid>
-                                <Grid item xs={6}>                                
+                                <Grid item xs={12} sm={6}>                                
                                     <IconButton aria-label="delete" title="Excluir receita" color="secondary" 
                                         onClick={ () => alertDialog(row) }>
                                         <DeleteForeverIcon />
@@ -140,7 +150,7 @@ const RevenueTable = (props:RevenueTableProps) => {
 
             <AlertDialog open={isAlertDialogOpen} title="Confirmação de exclusão" message={messageAlertDialog} 
                 handleClose={closeAlertDialog} handleConfirm={ removeRevenue } />
-        </Container>
+        </>
     );
 };
 

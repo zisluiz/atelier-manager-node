@@ -1,6 +1,7 @@
 import Button from '@material-ui/core/Button';
 import React from 'react';
-import Container from '@material-ui/core/Container';
+import { makeStyles } from '@material-ui/core/styles';
+import theme from 'src/theme';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -26,6 +27,18 @@ import * as NumberUtil from 'src/util/NumberUtil';
 import EmptyRowDataTable from 'src/ui/components/base/EmptyRowDataTable';
 import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
+const useStyles = makeStyles({
+    root: {    
+      [theme.breakpoints.down('sm')]: {
+        maxWidth: "700px"
+      }
+    }, columnOption: {    
+        [theme.breakpoints.up('sm')]: {
+          width: "220px"
+        }
+    }
+  });
+
 interface StepTableProps {
     cloth:Cloth | null,
     optionsBaseSteps:Step[],
@@ -40,17 +53,14 @@ const StepTable = (props:StepTableProps) => {
     const [steps, setSteps] = React.useState(props.cloth ? props.cloth.steps : []);
     const [messageAlertDialog, setMessageAlertDialog] = React.useState("");
     const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false);
-
-    let isEdittingRow = false;
-
+    const classes = useStyles();
+    
     function openNewStep() {
-        isEdittingRow = false;
         setSelectedRow(createNewStep());
         setIsDialogOpen(true);
     }
 
     function openEditStep(stepToEdit:Step) {        
-        isEdittingRow = true;
         setSelectedRow(stepToEdit);
         setIsDialogOpen(true);
     }
@@ -109,7 +119,7 @@ const StepTable = (props:StepTableProps) => {
     }
 
     return(
-        <Container maxWidth="lg">
+        <>
             <Typography variant="h4" align="center" gutterBottom>
                 Peça: {props.cloth && props.cloth.name}
             </Typography> 
@@ -120,13 +130,13 @@ const StepTable = (props:StepTableProps) => {
 
             <Button variant="contained" color="primary" component="span" onClick={ openNewStep } >Nova Etapa</Button>
 
-            <TableContainer component={Paper}>                      
+            <TableContainer component={Paper} className={classes.root}>                      
                 <Table size="medium" aria-label="Lista de etapas">
                 <TableHead>
                     <TableRow>
                     <TableCell>Nome da etapa</TableCell>
                     <TableCell align="center">Recursos</TableCell>
-                    <TableCell align="center" width={220}>Opções</TableCell>
+                    <TableCell align="center" className={classes.columnOption}>Opções</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -138,28 +148,30 @@ const StepTable = (props:StepTableProps) => {
                         {row.name}
                         </TableCell>
                         <TableCell>{row.resources && row.resources.map( (resource:Resource) => {
-                            return `${resource.name} (${NumberUtil.getCurrencyString(resource.cost)} ${getCostTypeName(resource.costType).toLowerCase()})` 
+                            const costText = resource.cost > 0 ? `(${NumberUtil.getCurrencyString(resource.cost)} ${getCostTypeName(resource.costType).toLowerCase()})`: "";
+                            const defaultSpendText = resource.defaultSpendTime ? `(tempo padrão: ${resource.defaultSpendTime})`: "";
+                            return `${resource.name} ${costText} ${defaultSpendText}` 
                         }).join(', ')
                         }</TableCell>
                         <TableCell align="center">
 
                         <Grid container>
-                            <Grid item xs={3}>
+                            <Grid item xs={12} sm={3}>
                             <IconButton aria-label="verEtapas" title="Ver recursos desta etapa" color="secondary" onClick={ () => showResources(row)}>
                                 <MonetizationOnIcon />
                             </IconButton> 
                             </Grid>      
-                            <Grid item xs={3}>
+                            <Grid item xs={12} sm={3}>
                             <IconButton aria-label="subir" title="Subir etapa" color="secondary" onClick={ () => upStep(row) }>
                                 <ArrowUpwardIcon />
                             </IconButton> 
                             </Grid>                                                             
-                            <Grid item xs={3}>
+                            <Grid item xs={12} sm={3}>
                             <IconButton aria-label="edit" title="Editar etapa" color="secondary" onClick={ () => openEditStep(row) }>
                                 <EditIcon />
                             </IconButton> 
                             </Grid>
-                            <Grid item xs={3}>                                
+                            <Grid item xs={12} sm={3}>                                
                                 <IconButton aria-label="delete" title="Excluir etapa" color="secondary" 
                                     onClick={ () => alertDialog(row) }>
                                     <DeleteForeverIcon />
@@ -174,7 +186,7 @@ const StepTable = (props:StepTableProps) => {
             </TableContainer>
 
             <AlertDialog open={isAlertDialogOpen} title="Confirmação de exclusão" message={messageAlertDialog} handleClose={closeAlertDialog} handleConfirm={ removeStep } />
-        </Container>
+        </>
     );
 };
 

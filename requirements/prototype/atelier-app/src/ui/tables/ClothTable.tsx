@@ -1,6 +1,7 @@
 import Button from '@material-ui/core/Button';
+import { makeStyles } from '@material-ui/core/styles';
+import theme from 'src/theme';
 import React from 'react';
-import Container from '@material-ui/core/Container';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -24,6 +25,14 @@ import * as IdentityUtil from 'src/util/IdentityUtil';
 import EmptyRowDataTable from 'src/ui/components/base/EmptyRowDataTable';
 import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
+const useStyles = makeStyles({
+    root: {    
+      [theme.breakpoints.down('sm')]: {
+        maxWidth: "700px"
+      }
+    }
+  });
+
 interface ClothTableProps {
     serviceTypes:ServiceType[],
     clothes:Cloth[],
@@ -39,6 +48,7 @@ const ClothTable = (props:ClothTableProps) => {
     const [clothToRemove, setClothToRemove] = React.useState<Cloth | null>(null);
     const [messageAlertDialog, setMessageAlertDialog] = React.useState("");
     const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false);
+    const classes = useStyles();
 
     function openNewCloth() {
         setSelectedRow(createNewCloth());
@@ -103,7 +113,7 @@ const ClothTable = (props:ClothTableProps) => {
     }    
 
     return(
-        <Container maxWidth="lg">
+        <>
             <ClothDialog open={isDialogOpen} selectedCloth={selectedRow} optionsServiceTypes={props.serviceTypes} 
                     handleSave={handleSaveCloth} handleClose={handleCloseDialog} 
                     optionsClothes={props.optionsClothes}
@@ -111,7 +121,7 @@ const ClothTable = (props:ClothTableProps) => {
 
             <Button variant="contained" color="primary" component="span" onClick={ openNewCloth } >Nova Peça</Button>
 
-            <TableContainer component={Paper}>                      
+            <TableContainer component={Paper} className={classes.root}>                      
                 <Table size="medium" aria-label="Lista de peças">
                 <TableHead>
                     <TableRow>
@@ -120,7 +130,7 @@ const ClothTable = (props:ClothTableProps) => {
                     <TableCell align="right">Preço Unitário (R$)</TableCell>
                     <TableCell align="center">Tipos de serviços</TableCell>
                     <TableCell align="center">Etapas</TableCell>
-                    <TableCell align="center" width={180}>Opções</TableCell>
+                    <TableCell align="center">Opções</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -138,25 +148,24 @@ const ClothTable = (props:ClothTableProps) => {
                         <TableCell><CategoryListOutput categories={row.serviceTypes} /></TableCell>
                         <TableCell>{row.steps && row.steps.map(step => step.name).join(', ')}</TableCell>
                         <TableCell align="center">
-
-                        <Grid container>
-                            <Grid item xs={4}>
-                            <IconButton aria-label="verEtapas" title="Ver etapas desta peça" color="secondary" onClick={ () => showSteps(row) }>
-                                <FormatListNumberedIcon />
-                            </IconButton> 
-                            </Grid> 
-                            <Grid item xs={4}>
-                            <IconButton aria-label="edit" title="Editar peça" color="secondary" onClick={ () => openEditCloth(row) }>
-                                <EditIcon />
-                            </IconButton> 
+                            <Grid container>
+                                <Grid item xs={12} sm={4}>
+                                <IconButton aria-label="verEtapas" title="Ver etapas desta peça" color="secondary" onClick={ () => showSteps(row) }>
+                                    <FormatListNumberedIcon />
+                                </IconButton> 
+                                </Grid> 
+                                <Grid item xs={12} sm={4}>
+                                <IconButton aria-label="edit" title="Editar peça" color="secondary" onClick={ () => openEditCloth(row) }>
+                                    <EditIcon />
+                                </IconButton> 
+                                </Grid>
+                                <Grid item xs={12} sm={4}>                                
+                                    <IconButton aria-label="delete" title="Excluir peça" color="secondary" 
+                                        onClick={ () => alertDialog(row) }>
+                                        <DeleteForeverIcon />
+                                    </IconButton>
+                                </Grid>
                             </Grid>
-                            <Grid item xs={4}>                                
-                                <IconButton aria-label="delete" title="Excluir peça" color="secondary" 
-                                    onClick={ () => alertDialog(row) }>
-                                    <DeleteForeverIcon />
-                                </IconButton>
-                            </Grid>
-                        </Grid>
                         </TableCell>
                     </TableRow>
                     ))}
@@ -166,7 +175,7 @@ const ClothTable = (props:ClothTableProps) => {
 
             <AlertDialog open={isAlertDialogOpen} title="Confirmação de exclusão" message={messageAlertDialog} 
                     handleClose={closeAlertDialog} handleConfirm={ removeCloth } />
-        </Container>
+        </>
     );
 };
 

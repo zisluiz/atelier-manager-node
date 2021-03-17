@@ -26,6 +26,7 @@ import CurrencyRealOutput from 'src/ui/components/base/CurrencyRealOutput';
 import CustomerInput from 'src/ui/components/CustomerInput';
 import { Step } from 'src/model/Step';
 import * as IdentityUtil from 'src/util/IdentityUtil';
+import PriceCard from '../components/base/PriceCard';
 
 const validationSchema = yup.object({
   baseService: yup
@@ -113,6 +114,11 @@ export default function ServiceRequisitionForm(props: ServiceRequisitionFormProp
     formik.setFieldValue('customer', newCustomer); 
   }
 
+  const precoBase = getPrecoBaseTotal();
+
+  const valorCobradoColor = formik.values.price > getPrecoBaseTotal() ? "green" :
+  formik.values.price < precoBase ? "red" : "";
+
   return (
     <Container component="main" maxWidth="lg">
       <form id="formService" onSubmit={formik.handleSubmit} noValidate> 
@@ -120,7 +126,7 @@ export default function ServiceRequisitionForm(props: ServiceRequisitionFormProp
           Requisição de serviço
         </Typography>
 
-        <Grid container spacing={2}>
+        <Grid container spacing={2} justify="flex-end">
           <Grid item xs={12} sm={6}>
             <Autocomplete
               id="autocomplete-base-services"
@@ -156,7 +162,7 @@ export default function ServiceRequisitionForm(props: ServiceRequisitionFormProp
                 label="Observações"
                 fullWidth />
           </Grid>           
-          <Grid item xs={6} sm={3}>            
+          <Grid item xs={12} sm={3}>            
             <TextField
               id="inputDeadline"
               label="Prazo de conclusão:"
@@ -173,14 +179,14 @@ export default function ServiceRequisitionForm(props: ServiceRequisitionFormProp
               }}
             />
           </Grid>
-          <Grid item xs={6} sm={3}> 
-            <CurrencyRealInput id="inputPrice" label="Preço:" required 
+          <Grid item xs={12} sm={3}> 
+            <CurrencyRealInput id="inputPrice" label="Preço cobrado:" required 
                 value={formik.values.price}
                 onValueChange={ (values: any) => formik.setFieldValue('price', values.floatValue) }
                 error={formik.touched.price && Boolean(formik.errors.price)}
                 helperText={formik.touched.price && formik.errors.price} />
           </Grid>
-          <Grid item xs={8}> 
+          <Grid item xs={12} sm={8}> 
           <input
             style={{ display: "none" }}
             id="contained-button-file"
@@ -192,11 +198,11 @@ export default function ServiceRequisitionForm(props: ServiceRequisitionFormProp
             </Button>
           </label>
           </Grid>
-          <Grid item xs={4}> 
-              <Typography variant="h5" align="center" gutterBottom>
-              Preço base (R$): <CurrencyRealOutput value={getPrecoBaseTotal()} />
-              </Typography>          
-              
+          <Grid item xs={6} sm={2}>            
+              <PriceCard label="Valor base" value={getPrecoBaseTotal()} toolTip="Valor base é calculado através do valor unitário das peças * a sua quantidade." />
+          </Grid>
+          <Grid item xs={6} sm={2}>            
+            <PriceCard label="Preço cobrado" value={formik.values.price} toolTip="Preço informado ao cliente." valueColor={valorCobradoColor} />
           </Grid>          
           <Grid item xs={12}>
 
@@ -227,8 +233,7 @@ export default function ServiceRequisitionForm(props: ServiceRequisitionFormProp
             
             />
           </Grid>
-
-          <Grid item xs={12} justify="flex-end">
+          <Grid item xs={4} sm={2}>
             <Button color="primary" type="submit" variant="contained">
               Salvar
             </Button>           

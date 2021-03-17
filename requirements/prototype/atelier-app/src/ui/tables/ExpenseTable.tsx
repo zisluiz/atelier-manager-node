@@ -1,6 +1,7 @@
 import Button from '@material-ui/core/Button';
 import React from 'react';
-import Container from '@material-ui/core/Container';
+import { makeStyles } from '@material-ui/core/styles';
+import theme from 'src/theme';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -20,6 +21,18 @@ import EmptyRowDataTable from 'src/ui/components/base/EmptyRowDataTable';
 import CurrencyRealOutput from 'src/ui/components/base/CurrencyRealOutput';
 import { Expense } from 'src/model/Expense';
 
+const useStyles = makeStyles({
+    root: {    
+      [theme.breakpoints.down('sm')]: {
+        maxWidth: "700px"
+      }
+    }, columnOption: {    
+        [theme.breakpoints.up('sm')]: {
+          width: "120px"
+        }
+    }
+});
+
 interface ExpenseTableProps {    
     expenses: Expense[],
     updateExpenses(expenses: Expense[]):void
@@ -31,7 +44,7 @@ const ExpenseTable = (props:ExpenseTableProps) => {
     const [expenseToRemove, setExpenseToRemove] = React.useState<Expense | null>(null);
     const [messageAlertDialog, setMessageAlertDialog] = React.useState("");
     const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false);
-
+    const classes = useStyles();
     let isEdittingRow = false;
 
     function openNewExpense() {
@@ -84,7 +97,7 @@ const ExpenseTable = (props:ExpenseTableProps) => {
     }
 
     return(
-        <Container maxWidth="lg">
+       <>
             {selectedRow &&
             <ExpenseDialog open={isDialogOpen} selectedExpense={selectedRow}
                     handleSave={handleSaveExpense} handleClose={handleCloseDialog} 
@@ -92,13 +105,13 @@ const ExpenseTable = (props:ExpenseTableProps) => {
 
             <Button variant="contained" color="primary" component="span" onClick={ openNewExpense }>Nova Despesa</Button>
 
-            <TableContainer component={Paper}>                      
+            <TableContainer component={Paper} className={classes.root}>                      
                 <Table size="medium" aria-label="Lista de despesas">
                 <TableHead>
                     <TableRow>
                     <TableCell>Despesa</TableCell>
                     <TableCell align="center">Valor (R$)</TableCell>
-                    <TableCell align="center" width={140}>Opções</TableCell>
+                    <TableCell align="center" className={classes.columnOption}>Opções</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -112,12 +125,12 @@ const ExpenseTable = (props:ExpenseTableProps) => {
                         <TableCell align="right"><CurrencyRealOutput value={row.value} /></TableCell>
                         <TableCell align="center">
                             <Grid container>
-                                <Grid item xs={6}>
+                                <Grid item xs={12} sm={6}>
                                 <IconButton aria-label="edit" title="Editar despesa" color="secondary" onClick={ () => openEditExpense(row) }>
                                     <EditIcon />
                                 </IconButton> 
                                 </Grid>
-                                <Grid item xs={6}>                                
+                                <Grid item xs={12} sm={6}>                                
                                     <IconButton aria-label="delete" title="Excluir despesa" color="secondary" 
                                         onClick={ () => alertDialog(row) }>
                                         <DeleteForeverIcon />
@@ -133,7 +146,7 @@ const ExpenseTable = (props:ExpenseTableProps) => {
 
             <AlertDialog open={isAlertDialogOpen} title="Confirmação de exclusão" message={messageAlertDialog} 
                 handleClose={closeAlertDialog} handleConfirm={ removeExpense } />
-        </Container>
+        </>
     );
 };
 
