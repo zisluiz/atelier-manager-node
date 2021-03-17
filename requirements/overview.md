@@ -1,5 +1,7 @@
 # Sistema de gestão de atelier de costura
 
+Ateliês pequenos de costura e modelagem de roupas costumam necessitar de ferramentas para auxiliar o controle de tempo despendido nas tarefas de produção. Também possuem dificuldade para medir os custos de produção e controle de receitas e despesas. 
+
 ## Objetivos
 
 Sistematizar a gestão dos processos de modelagem, serviços (ajustes, roupas sob medida) e controlar receitas/despesas.

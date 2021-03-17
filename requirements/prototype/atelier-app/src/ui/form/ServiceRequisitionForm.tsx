@@ -84,7 +84,8 @@ export default function ServiceRequisitionForm(props: ServiceRequisitionFormProp
   function getPrecoBaseTotal() {
     let total = 0;
 
-    props.service.clothes.forEach( (cloth:Cloth) => total += cloth.quantity * cloth.price );
+    if (props.service && props.service.clothes)
+      props.service.clothes.forEach( (cloth:Cloth) => total += cloth.quantity * cloth.price );
 
     return total;
   }
