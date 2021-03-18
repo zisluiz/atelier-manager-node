@@ -12,6 +12,7 @@ import CategoryIcon from '@material-ui/icons/Category';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert, {Color as AlertColor} from '@material-ui/lab/Alert';
 import BuildIcon from '@material-ui/icons/Build';
+import MoneyIcon from '@material-ui/icons/Money';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import moment from 'moment';
@@ -37,6 +38,8 @@ import { Expense } from 'src/model/Expense';
 import ExpenseTable from 'src/ui/tables/ExpenseTable';
 import { Revenue } from 'src/model/Revenue';
 import RevenueTable from '../tables/RevenueTable';
+import { Resource } from 'src/model/Resource';
+import Fieldset from 'src/ui/components/base/Fieldset';
 
 const useStyles = makeStyles({
   root: {
@@ -52,6 +55,10 @@ const useStyles = makeStyles({
     color: "red",
     height: "100%"
   },
+  servicePayed: {
+    color: "green",
+    height: "100%"
+  },  
   containerFullHeight: {
     height: "100%"
   }
@@ -92,6 +99,7 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
   const [messageSnackAlert, setMessageSnackAlert] = React.useState<JSX.Element | null>(null);
   
   const classes = useStyles();
+  const inProgressService = executionService.status.id == 1;
     
   const handleChangeTab = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTabIndex(newValue);
@@ -130,6 +138,24 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
     props.handleServiceUpdate(service);
   }
 
+  function updateClothSteps(clothToUpdate:Cloth | null, steps: Step[]) {
+    if (!clothToUpdate)
+        return;
+
+    const persistedCloth = props.service.clothes.filter((cloth:Cloth) => cloth.id == clothToUpdate.id)[0];
+    persistedCloth.steps = steps;
+}
+
+function updateStepResources(stepToUpdate:Step | null, resources: Resource[]) {
+    if (!stepToUpdate)
+        return;
+
+    const persistedCloth = props.service.clothes.filter((cloth:Cloth) => cloth.steps && cloth.steps.filter((step:Step) => step.id == stepToUpdate.id))[0];
+    const persistedStep = persistedCloth.steps && persistedCloth.steps.filter((step:Step) => step.id == stepToUpdate.id)[0];
+
+    persistedStep.resources = resources;
+}   
+
   function updateSpendedTimes(spendedTimes: SpendTime[]) {
     setExecutionService({...executionService, spendedTimes: spendedTimes});
   }
@@ -149,7 +175,7 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
   }
 
   function payedService() {
-    setExecutionService({...executionService, status: props.controller.getStatusPayedService()});
+    setExecutionService({...executionService, payed: true});
   } 
   
   function reopenService() {
@@ -228,21 +254,31 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
           <Grid item xs={12} sm={4}>  
 
             <Grid container className={classes.containerFullHeight}>
-              <Grid item xs={11}>                
+              <Grid item xs={8} sm={10}>                
                 <Typography variant="h4" align="center" gutterBottom className={classes.titlePage} component="span">
                   Execução de serviço #{executionService.service.id}
                 </Typography>
               </Grid>
-              <Grid item xs={1}>
-                {
-                  executionService.serviceReturned &&                                
-                  <Tooltip title="Serviço com retorno de ajustes">   
-                    <IconButton aria-label="Serviço com retorno de ajustes" className={classes.serviceReturned}>
-                      <BuildIcon />
-                    </IconButton>        
-                  </Tooltip>
-                }
-              </Grid>
+              { executionService.serviceReturned &&               
+                <Grid item xs={2} sm={1}>
+                                                
+                    <Tooltip title="Serviço com retorno de ajustes">   
+                      <IconButton aria-label="Serviço com retorno de ajustes" className={classes.serviceReturned}>
+                        <BuildIcon />
+                      </IconButton>        
+                    </Tooltip>
+                </Grid>
+              }                
+              { executionService.payed &&                                
+                <Grid item xs={2} sm={1}>
+                  
+                    <Tooltip title="Serviço pago">   
+                      <IconButton aria-label="Serviço pago" className={classes.servicePayed}>
+                        <MoneyIcon fontSize="large" />
+                      </IconButton>        
+                    </Tooltip>                
+                </Grid>      
+              }
             </Grid>
           </Grid>          
           <Grid item xs={6} sm={2}>  
@@ -275,6 +311,7 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
                   onChange={(event: any, value: string | Customer | null) => { formik.setFieldValue('customer', value); }}
                   errorExpression={formik.touched.customer && Boolean(formik.errors.customer)}
                   helperText={formik.touched.customer && formik.errors.customer}
+                  disabled={!inProgressService}
                   handleAddCustomer={(newCustomer: Customer) => { addNewCustomer(newCustomer) }} />
 
               </Grid>
@@ -283,14 +320,16 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
                     value={formik.values.hourValue}
                     onValueChange={ (values: any) => formik.setFieldValue('hourValue', values.floatValue) }
                     error={formik.touched.hourValue && Boolean(formik.errors.hourValue)}
-                    helperText={formik.touched.hourValue && formik.errors.hourValue} />
+                    helperText={formik.touched.hourValue && formik.errors.hourValue}
+                    disabled={!inProgressService} />
               </Grid>                    
               <Grid item xs={6} sm={4}> 
                 <CurrencyRealInput id="inputPrice" label="Preço cobrado:" required 
                     value={formik.values.price}
                     onValueChange={ (values: any) => formik.setFieldValue('price', values.floatValue) }
                     error={formik.touched.price && Boolean(formik.errors.price)}
-                    helperText={formik.touched.price && formik.errors.price} />
+                    helperText={formik.touched.price && formik.errors.price}
+                    disabled={!inProgressService} />
               </Grid>          
               <Grid item xs={12} sm={4}>            
                 <TextField
@@ -304,6 +343,7 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
                   variant="outlined"
                   type="date"
                   fullWidth
+                  disabled={!inProgressService}
                   InputLabelProps={{
                     shrink: true,
                   }}
@@ -316,6 +356,7 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
                     rows="4"      
                     rowsMax="6"
                     id="observacoes"
+                    disabled={!inProgressService}
                     value={formik.values.comments}
                     onChange={formik.handleChange }            
                     name="comments"
@@ -326,10 +367,12 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
                 <input
                   style={{ display: "none" }}
                   id="contained-button-file"
+                  disabled={!inProgressService}
                   type="file"
                 />
                 <label htmlFor="contained-button-file">
-                  <Button variant="contained" color="secondary" component="span">
+                  <Button variant="contained" color="secondary" component="span"
+                     disabled={!inProgressService}>
                     Upload
                   </Button>
                 </label>
@@ -337,7 +380,8 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
               <Grid item xs={12}>
                 <Grid container spacing={2} justify="flex-end" style={{width: "100%"}}>
                   <Grid item xs={3} sm={1}>
-                      <Button color="primary" type="submit" variant="contained">Salvar</Button>
+                      <Button color="primary" type="submit" variant="contained"
+                         disabled={!inProgressService}>Salvar</Button>
                   </Grid> 
                 </Grid>           
               </Grid>
@@ -360,14 +404,17 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
                   <TabPanel value={tabIndex} index={0} key={0}>                    
                     <ClothTable serviceTypes={props.controller.serviceTypes} handleClothSelection={handleClothSelection} controller={props.controller} 
                       clothes={props.service.clothes} handleUpdateClothes={handleUpdateClothes}
-                      optionsClothes={props.controller.clothes} />
+                      optionsClothes={props.controller.clothes}
+                      disabled={!inProgressService} />
                   </TabPanel>,
                   <TabPanel value={tabIndex} index={1} key={1}>
                     <StepTable cloth={selectedCloth} optionsBaseSteps={props.controller.baseSteps} 
-                      handleStepSelection={handleStepSelection} controller={props.controller} />
+                      handleStepSelection={handleStepSelection} updateClothSteps={updateClothSteps}
+                      disabled={!inProgressService} />
                   </TabPanel>,
                   <TabPanel value={tabIndex} index={2} key={2}>
-                    <ResourceTable step={selectedStep} optionsBaseResources={props.controller.baseResources} controller={props.controller} />
+                    <ResourceTable step={selectedStep} optionsBaseResources={props.controller.baseResources} updateStepResources={updateStepResources}
+                      disabled={!inProgressService} />
                   </TabPanel> 
                 ]
               } />
@@ -376,7 +423,8 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
         <ContentCard header="Horas despendidas nas tarefas:" marginTop={2}>
             <RegisterSpendedTimeTable clothInstances={executionService.instancedCloths} 
               serviceSpendedTimes={executionService.spendedTimes}
-              updateSpendedTimes={updateSpendedTimes} 
+              updateSpendedTimes={updateSpendedTimes}
+              disabled={!inProgressService} 
               showSnackAlert={showSnackAlert} />
         </ContentCard>
 
@@ -392,10 +440,11 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
               tabPanels={
                 [
                   <TabPanel value={tabIndexReceitas} index={0} key={0}>                    
-                    <RevenueTable revenues={executionService.revenues} optionsPaymentType={props.controller.paymentTypes} updateRevenues={updateRevenues} />
+                    <RevenueTable revenues={executionService.revenues} optionsPaymentType={props.controller.paymentTypes} updateRevenues={updateRevenues}
+                      disabled={!inProgressService} />
                   </TabPanel>,
                   <TabPanel value={tabIndexReceitas} index={1} key={1}>
-                      <ExpenseTable expenses={executionService.expenses} updateExpenses={updateExpenses} />
+                      <ExpenseTable expenses={executionService.expenses} updateExpenses={updateExpenses} disabled={!inProgressService} />
                   </TabPanel>
                 ]
               } />
@@ -404,18 +453,22 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
         <ContentCard header="Ações:" marginTop={2}>
           <Grid container spacing={2}>            
             <Grid container justify="flex-end">
-              <Grid item sm={2} xs={4}>                            
-                {executionService.status.id === 2 ? <Button color="primary" variant="contained" onClick={ () => payedService()}>Serviço pago</Button> : null}
-              </Grid>    
+              {executionService.status.id === 2 && !executionService.payed &&
+                <Grid item sm={2} xs={4}>                            
+                  <Button color="primary" variant="contained" onClick={ () => payedService()}>Serviço pago</Button>
+                </Grid>
+              }
               <Grid item sm={2} xs={4}>            
                 {(executionService.status.id > 1) ? 
                   <Button color="primary" variant="contained" onClick={ () => reopenService()}>Reabrir serviço</Button> : null}
               </Grid>
-              <Grid item sm={2} xs={4}>            
-                {executionService.status.id === 1 ? <Button color="primary" variant="contained" onClick={ () => completeService()}>Concluir serviço</Button> : null}
-                {(executionService.status.id > 1 && !executionService.serviceReturned) ? 
-                  <Button color="primary" variant="contained" onClick={ () => returnedService()}>Retorno de serviço</Button> : null}
-              </Grid>              
+              {(executionService.status.id === 1 || (executionService.status.id > 1 && !executionService.serviceReturned)) &&
+                <Grid item sm={2} xs={4}>            
+                  {executionService.status.id === 1 ? <Button color="primary" variant="contained" onClick={ () => completeService()}>Concluir serviço</Button> : null}
+                  {(executionService.status.id > 1 && !executionService.serviceReturned) ? 
+                    <Button color="primary" variant="contained" onClick={ () => returnedService()}>Retorno de serviço</Button> : null}
+                </Grid>
+              }       
             </Grid>
           </Grid> 
         </ContentCard>      

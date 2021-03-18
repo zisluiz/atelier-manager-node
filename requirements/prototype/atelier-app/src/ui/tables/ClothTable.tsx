@@ -39,6 +39,7 @@ interface ClothTableProps {
     optionsClothes:Cloth[],
     handleClothSelection:Function,
     handleUpdateClothes: Function,
+    disabled?: boolean,
     controller: ServiceRequisitionController
 }
 
@@ -119,7 +120,8 @@ const ClothTable = (props:ClothTableProps) => {
                     optionsClothes={props.optionsClothes}
                     title={!selectedRow ? "" : (selectedRow.id == 0 ? "Cadastrar nova peça" : "Editar peça \"" + selectedRow.name + "\"")} />
 
-            <Button variant="contained" color="primary" component="span" onClick={ openNewCloth } >Nova Peça</Button>
+            <Button variant="contained" color="primary" component="span" disabled={props.disabled}
+                onClick={ openNewCloth } >Nova Peça</Button>
 
             <TableContainer component={Paper} className={classes.root}>                      
                 <Table size="medium" aria-label="Lista de peças">
@@ -155,12 +157,13 @@ const ClothTable = (props:ClothTableProps) => {
                                 </IconButton> 
                                 </Grid> 
                                 <Grid item xs={12} sm={4}>
-                                <IconButton aria-label="edit" title="Editar peça" color="secondary" onClick={ () => openEditCloth(row) }>
+                                <IconButton aria-label="edit" title="Editar peça" color="secondary"  disabled={props.disabled}
+                                    onClick={ () => openEditCloth(row) }>
                                     <EditIcon />
                                 </IconButton> 
                                 </Grid>
                                 <Grid item xs={12} sm={4}>                                
-                                    <IconButton aria-label="delete" title="Excluir peça" color="secondary" 
+                                    <IconButton aria-label="delete" title="Excluir peça" color="secondary" disabled={props.disabled}
                                         onClick={ () => alertDialog(row) }>
                                         <DeleteForeverIcon />
                                     </IconButton>

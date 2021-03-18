@@ -25,7 +25,6 @@ import * as ArraysUtil from 'src/util/ArraysUtil';
 import * as IdentityUtil from 'src/util/IdentityUtil';
 import * as NumberUtil from 'src/util/NumberUtil';
 import EmptyRowDataTable from 'src/ui/components/base/EmptyRowDataTable';
-import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
 const useStyles = makeStyles({
     root: {    
@@ -43,7 +42,8 @@ interface StepTableProps {
     cloth:Cloth | null,
     optionsBaseSteps:Step[],
     handleStepSelection:Function,
-    controller:ServiceRequisitionController
+    disabled?: boolean,
+    updateClothSteps(clothToUpdate:Cloth | null, steps: Step[]):void
 }
 
 const StepTable = (props:StepTableProps) => {    
@@ -76,18 +76,18 @@ const StepTable = (props:StepTableProps) => {
             newSteps = ArraysUtil.addObject(steps, stepToSave);
         } else {            
             const changedStep = {...selectedRow, ...stepToSave};
-            newSteps = ArraysUtil.updateObject(steps, selectedRow, changedStep);            
+            newSteps = ArraysUtil.updateObject(steps, selectedRow, changedStep);
         }
 
         setSteps(newSteps);
-        props.controller.updateClothSteps(props.cloth, newSteps);
+        props.updateClothSteps(props.cloth, newSteps);
         handleCloseDialog();
     } 
 
     function removeStep() {
         const newSteps = ArraysUtil.removeObject(steps, stepToRemove);
         setSteps(newSteps);
-        props.controller.updateClothSteps(props.cloth, newSteps);
+        props.updateClothSteps(props.cloth, newSteps);
         closeAlertDialog();
     }
     
@@ -128,7 +128,8 @@ const StepTable = (props:StepTableProps) => {
                     handleSave={handleSaveStep} handleClose={handleCloseDialog} 
                     title={!selectedRow ? "" : (selectedRow.id == 0 ? "Cadastrar nova etapa" : "Editar etapa \"" + selectedRow.name + "\"")} />
 
-            <Button variant="contained" color="primary" component="span" onClick={ openNewStep } >Nova Etapa</Button>
+            <Button variant="contained" color="primary" component="span" disabled={props.disabled}
+                onClick={ openNewStep } >Nova Etapa</Button>
 
             <TableContainer component={Paper} className={classes.root}>                      
                 <Table size="medium" aria-label="Lista de etapas">
@@ -162,17 +163,17 @@ const StepTable = (props:StepTableProps) => {
                             </IconButton> 
                             </Grid>      
                             <Grid item xs={12} sm={3}>
-                            <IconButton aria-label="subir" title="Subir etapa" color="secondary" onClick={ () => upStep(row) }>
+                            <IconButton aria-label="subir" title="Subir etapa" color="secondary" disabled={props.disabled} onClick={ () => upStep(row) }>
                                 <ArrowUpwardIcon />
                             </IconButton> 
                             </Grid>                                                             
                             <Grid item xs={12} sm={3}>
-                            <IconButton aria-label="edit" title="Editar etapa" color="secondary" onClick={ () => openEditStep(row) }>
+                            <IconButton aria-label="edit" title="Editar etapa" color="secondary" disabled={props.disabled} onClick={ () => openEditStep(row) }>
                                 <EditIcon />
                             </IconButton> 
                             </Grid>
                             <Grid item xs={12} sm={3}>                                
-                                <IconButton aria-label="delete" title="Excluir etapa" color="secondary" 
+                                <IconButton aria-label="delete" title="Excluir etapa" color="secondary" disabled={props.disabled}
                                     onClick={ () => alertDialog(row) }>
                                     <DeleteForeverIcon />
                                 </IconButton>

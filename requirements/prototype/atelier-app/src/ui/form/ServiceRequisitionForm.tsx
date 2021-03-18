@@ -27,6 +27,7 @@ import CustomerInput from 'src/ui/components/CustomerInput';
 import { Step } from 'src/model/Step';
 import * as IdentityUtil from 'src/util/IdentityUtil';
 import PriceCard from '../components/base/PriceCard';
+import { Resource } from 'src/model/Resource';
 
 const validationSchema = yup.object({
   baseService: yup
@@ -80,6 +81,24 @@ export default function ServiceRequisitionForm(props: ServiceRequisitionFormProp
   function handleUpdateClothes(clothes: Cloth[]) {
     props.handleServiceUpdate({...props.service, clothes: clothes});
   }
+
+  function updateClothSteps(clothToUpdate:Cloth | null, steps: Step[]) {
+    if (!clothToUpdate)
+        return;
+
+    const persistedCloth = props.service.clothes.filter((cloth:Cloth) => cloth.id == clothToUpdate.id)[0];
+    persistedCloth.steps = steps;
+}
+
+function updateStepResources(stepToUpdate:Step | null, resources: Resource[]) {
+    if (!stepToUpdate)
+        return;
+
+    const persistedCloth = props.service.clothes.filter((cloth:Cloth) => cloth.steps && cloth.steps.filter((step:Step) => step.id == stepToUpdate.id))[0];
+    const persistedStep = persistedCloth.steps && persistedCloth.steps.filter((step:Step) => step.id == stepToUpdate.id)[0];
+
+    persistedStep.resources = resources;
+}  
 
   function getPrecoBaseTotal() {
     let total = 0;
@@ -224,10 +243,11 @@ export default function ServiceRequisitionForm(props: ServiceRequisitionFormProp
                       optionsClothes={props.controller.clothes} />
                   </TabPanel>,
                   <TabPanel value={tabIndex} index={1} key={1}>
-                    <StepTable cloth={selectedCloth} optionsBaseSteps={props.controller.baseSteps} handleStepSelection={handleStepSelection} controller={props.controller} />
+                    <StepTable cloth={selectedCloth} optionsBaseSteps={props.controller.baseSteps} handleStepSelection={handleStepSelection} 
+                      updateClothSteps={updateClothSteps} />
                   </TabPanel>,
                   <TabPanel value={tabIndex} index={2} key={2}>
-                    <ResourceTable step={selectedStep} optionsBaseResources={props.controller.baseResources} controller={props.controller} />
+                    <ResourceTable step={selectedStep} optionsBaseResources={props.controller.baseResources} updateStepResources={updateStepResources} />
                   </TabPanel> 
                 ]
               }

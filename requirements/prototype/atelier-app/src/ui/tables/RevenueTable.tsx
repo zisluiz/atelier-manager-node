@@ -37,6 +37,7 @@ const useStyles = makeStyles({
 interface RevenueTableProps {    
     revenues: Revenue[],
     optionsPaymentType: PaymentType[],
+    disabled?: boolean,
     updateRevenues(revenues: Revenue[]):void
 }
 
@@ -103,7 +104,7 @@ const RevenueTable = (props:RevenueTableProps) => {
                     handleSave={handleSaveRevenue} handleClose={handleCloseDialog} 
                     title={!selectedRow ? "" : (selectedRow.id == 0 ? "Cadastrar nova receita" : "Editar receita \"" + selectedRow.description + "\"")} />}
 
-            <Button variant="contained" color="primary" component="span" onClick={ openNewRevenue }>Nova receita</Button>
+            <Button variant="contained" color="primary" component="span" disabled={props.disabled} onClick={ openNewRevenue }>Nova receita</Button>
 
             <TableContainer component={Paper} className={classes.root}>                      
                 <Table size="medium" aria-label="Lista de receita">
@@ -130,12 +131,13 @@ const RevenueTable = (props:RevenueTableProps) => {
                         <TableCell align="center">
                             <Grid container>
                                 <Grid item xs={12} sm={6}>
-                                <IconButton aria-label="edit" title="Editar receita" color="secondary" onClick={ () => openEditRevenue(row) }>
+                                <IconButton aria-label="edit" title="Editar receita" color="secondary" disabled={props.disabled} 
+                                    onClick={ () => openEditRevenue(row) }>
                                     <EditIcon />
                                 </IconButton> 
                                 </Grid>
                                 <Grid item xs={12} sm={6}>                                
-                                    <IconButton aria-label="delete" title="Excluir receita" color="secondary" 
+                                    <IconButton aria-label="delete" title="Excluir receita" color="secondary" disabled={props.disabled} 
                                         onClick={ () => alertDialog(row) }>
                                         <DeleteForeverIcon />
                                     </IconButton>

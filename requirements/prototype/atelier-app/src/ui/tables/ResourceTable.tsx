@@ -22,7 +22,6 @@ import * as IdentityUtil from 'src/util/IdentityUtil';
 import { CostType, Resource, getCostByTypeName } from 'src/model/Resource';
 import EmptyRowDataTable from 'src/ui/components/base/EmptyRowDataTable';
 import CurrencyRealOutput from 'src/ui/components/base/CurrencyRealOutput';
-import ServiceRequisitionController from 'src/controller/ServiceRequisitionController';
 
 const useStyles = makeStyles({
     root: {    
@@ -39,7 +38,8 @@ const useStyles = makeStyles({
 interface ResourceTableProps {
     step:Step | null,
     optionsBaseResources:Resource[],
-    controller:ServiceRequisitionController
+    disabled?: boolean,
+    updateStepResources(stepToUpdate:Step | null, resources: Resource[]):void
 }
 
 const ResourceTable = (props:ResourceTableProps) => {    
@@ -77,14 +77,14 @@ const ResourceTable = (props:ResourceTableProps) => {
         }
 
         setResources(newResources);
-        props.controller.updateStepResources(props.step, newResources);
+        props.updateStepResources(props.step, newResources);
         handleCloseDialog();
     } 
 
     function removeResource() {
         const newResources = ArraysUtil.removeObject(resources, resourceToRemove);
         setResources(newResources);
-        props.controller.updateStepResources(props.step, newResources);
+        props.updateStepResources(props.step, newResources);
         closeAlertDialog();
     }
     
@@ -116,7 +116,7 @@ const ResourceTable = (props:ResourceTableProps) => {
                     handleSave={handleSaveResource} handleClose={handleCloseDialog} 
                     title={!selectedRow ? "" : (selectedRow.id == 0 ? "Cadastrar novo recurso" : "Editar recurso \"" + selectedRow.name + "\"")} />
 
-            <Button variant="contained" color="primary" component="span" onClick={ openNewResource }>Novo Recurso</Button>
+            <Button variant="contained" color="primary" component="span" disabled={props.disabled} onClick={ openNewResource }>Novo Recurso</Button>
 
             <TableContainer component={Paper} className={classes.root}>                      
                 <Table size="medium" aria-label="Lista de recursos">
@@ -141,12 +141,12 @@ const ResourceTable = (props:ResourceTableProps) => {
                         <TableCell align="center">
                             <Grid container>
                                 <Grid item xs={12} sm={6}>
-                                <IconButton aria-label="edit" title="Editar recurso" color="secondary" onClick={ () => openEditResource(row) }>
+                                <IconButton aria-label="edit" title="Editar recurso" color="secondary" disabled={props.disabled} onClick={ () => openEditResource(row) }>
                                     <EditIcon />
                                 </IconButton> 
                                 </Grid>
                                 <Grid item xs={12} sm={6}>                                
-                                    <IconButton aria-label="delete" title="Excluir recurso" color="secondary" 
+                                    <IconButton aria-label="delete" title="Excluir recurso" disabled={props.disabled} color="secondary" 
                                         onClick={ () => alertDialog(row) }>
                                         <DeleteForeverIcon />
                                     </IconButton>

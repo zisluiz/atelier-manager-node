@@ -65,10 +65,10 @@ const validate = (values: RegisterSpendedTimeInputs) => {
             errors = {...errors, inputManualEndSpendTime: "Hora fim deve ser maior que a hora inicial!"};
         }  
     } else {
-        if (values.selectedSpendedTime != null && !moment(values.selectedSpendedTime.date, "").isSame(new Date(), "day"))
+        if (values.autoSelectedSpendedTime != null && !moment(values.autoSelectedSpendedTime.date, "").isSame(new Date(), "day"))
             errors = {...errors, manualSpendTimeDate: "Não é possível usar o cronômetro para finalizar outro dia! Utilize o recurso manual."};
 
-        if (values.selectedSpendedTime && values.selectedSpendedTime.endTime) 
+        if (values.autoSelectedSpendedTime && values.autoSelectedSpendedTime.endTime) 
             errors = {...errors, inputManualEndSpendTime: "Horário fim já informado. Utilize a opção manual para atualizar as horas despendidas."};
     }
 
@@ -78,6 +78,7 @@ const validate = (values: RegisterSpendedTimeInputs) => {
 interface RegisterSpendedTimeProps {
     clothInstances: ClothInstance[] | null,
     serviceSpendedTimes: SpendTime[] | null,
+    disabled?: boolean,
     updateSpendedTimes(newSpendTime: SpendTime[]):any,
     showSnackAlert(message: string, severity: AlertColor):any
 }
@@ -86,7 +87,8 @@ interface RegisterSpendedTimeInputs {
     selectedClothInstances: ClothInstance[], 
     optionsSteps: Step[], 
     selectedSteps: Step[], 
-    selectedSpendedTime: SpendTime | null,
+    manualSelectedSpendedTime: SpendTime | null,
+    autoSelectedSpendedTime: SpendTime | null,
     manualSpendTimeDate: string, 
     inputManualStartSpendTime: string, 
     inputManualEndSpendTime: string, 
@@ -108,7 +110,8 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
             selectedClothInstances: [],
             optionsSteps: [],
             selectedSteps: [],
-            selectedSpendedTime: null,
+            manualSelectedSpendedTime: null,
+            autoSelectedSpendedTime: null,
             manualSpendTimeDate: moment(new Date()).format("yyyy-MM-DD"),
             inputManualStartSpendTime: "",
             inputManualEndSpendTime: "",
@@ -118,12 +121,14 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
         onSubmit: (values: RegisterSpendedTimeInputs) => {
             const clothes = formik.values.selectedClothInstances;
             const steps = formik.values.selectedSteps;
-            const edittingSpendedTime = formik.values.selectedSpendedTime;
+            
             let date = null;
             let startTime = null;
             let endTime = null;
             
             const isManualSubmition = values.submitionType == "manual";
+
+            const edittingSpendedTime = isManualSubmition ? formik.values.manualSelectedSpendedTime : formik.values.autoSelectedSpendedTime;
 
             if (isManualSubmition) {
                 date = moment(values.manualSpendTimeDate, "yyyy-MM-DD").toDate();
@@ -150,8 +155,8 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
             throw new Error("Error!");
 
         const newSpendedTimes = edittingSpendedTime ? ArraysUtil.updateObject(props.serviceSpendedTimes, edittingSpendedTime, spendedTime) :
-        ArraysUtil.addObject(props.serviceSpendedTimes, spendedTime);
-        editSpendedTime(isManualSubmition || edittingSpendedTime ? null : spendedTime);                        
+        ArraysUtil.addObject(props.serviceSpendedTimes, spendedTime);        
+        setSelectedSpendedTime(isManualSubmition, spendedTime);                        
         props.updateSpendedTimes(newSpendedTimes);
         props.showSnackAlert("Horas adicionadas com sucesso!", "success");
     }
@@ -190,12 +195,22 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
         formik.handleReset(null);
     }
 
+    function setSelectedSpendedTime(isManualSubmition:boolean, spendedTime: SpendTime | null) { 
+        if (isManualSubmition) {
+            formik.setFieldValue("manualSelectedSpendedTime", null, false);            
+        } else {
+            formik.setFieldValue("autoSelectedSpendedTime", !spendedTime || spendedTime.endTime ? null : spendedTime, false);
+            formik.setFieldValue("manualSelectedSpendedTime", null, false);
+        }
+    }    
+
     function editSpendedTime(spendedTime: SpendTime | null) {        
         formik.setValues({
             optionsSteps: formik.values.optionsSteps,
             submitionType: "",
             selectedClothInstances: spendedTime ? spendedTime.clothes : [],
-            selectedSpendedTime: spendedTime,
+            manualSelectedSpendedTime: spendedTime,
+            autoSelectedSpendedTime: null,
             selectedSteps: spendedTime ? spendedTime.steps : [],
             manualSpendTimeDate: spendedTime ?  moment(spendedTime.date).format("yyyy-MM-DD") : moment(new Date()).format("yyyy-MM-DD"),
             inputManualStartSpendTime: spendedTime ? spendedTime.startTime : "",
@@ -238,6 +253,7 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                 <Autocomplete                        
                         value={formik.values.selectedClothInstances}
                         onChange={(event, values) => { updateSelectedCloths(values); }}
+                        disabled={props.disabled}
                         multiple
                         filterSelectedOptions
                         id="autocomplete-cloth-instances"
@@ -253,6 +269,7 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                 <Autocomplete                        
                         value={formik.values.selectedSteps}
                         onChange={(event, values) => { formik.setFieldValue('selectedSteps', values); }}
+                        disabled={props.disabled}
                         multiple
                         filterSelectedOptions
                         id="autocomplete-steps-instances"
@@ -265,12 +282,13 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                                     helperText={formik.touched.selectedSteps && formik.errors.selectedSteps} />} />            
             </Grid>        
             <Grid item xs={12} sm={2}>            
-                <Button color="primary" variant="contained" onClick={ () => clearInputs() }>Limpar</Button>
+                <Button color="primary" variant="contained" title="Limpar os campos de entrada das horas despendidas"
+                    onClick={ () => clearInputs() } disabled={props.disabled}>Limpar</Button>
             </Grid>
             <Grid item xs={12}>            
-                <Button color="primary" variant="contained" type="button"
+                <Button color="primary" variant="contained" type="button" disabled={props.disabled}
                     onClick={ (e: any) => { callSubmit("auto"); } }>
-                    {formik.values.selectedSpendedTime == null ? "Iniciar" : "Parar"} cronômetro</Button>
+                    {formik.values.autoSelectedSpendedTime == null ? "Iniciar" : "Parar"} cronômetro</Button>
             </Grid> 
             <Grid item xs={12} sm={3}>            
                 <Typography variant="h6" align="center">
@@ -282,6 +300,7 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                         id="inputManualSpendTimeDate"
                         label="Data:"
                         value={formik.values.manualSpendTimeDate}
+                        disabled={props.disabled}
                         onChange={ (event) => { formik.setFieldValue('manualSpendTimeDate', event.target.value); } }  
                         error={formik.touched.manualSpendTimeDate && Boolean(formik.errors.manualSpendTimeDate)}
                         helperText={formik.touched.manualSpendTimeDate && formik.errors.manualSpendTimeDate}              
@@ -300,6 +319,7 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                         label="Início:"                
                         type="time"            
                         value={formik.values.inputManualStartSpendTime}
+                        disabled={props.disabled}
                         onChange={ formik.handleChange }     
                         error={formik.touched.inputManualStartSpendTime && Boolean(formik.errors.inputManualStartSpendTime)}
                         helperText={formik.touched.inputManualStartSpendTime && formik.errors.inputManualStartSpendTime}                          
@@ -319,6 +339,7 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                         label="Fim:"                
                         type="time"            
                         value={formik.values.inputManualEndSpendTime}
+                        disabled={props.disabled}
                         onChange={ formik.handleChange }     
                         error={formik.touched.inputManualEndSpendTime && Boolean(formik.errors.inputManualEndSpendTime)}
                         helperText={formik.touched.inputManualEndSpendTime && formik.errors.inputManualEndSpendTime}                          
@@ -332,8 +353,9 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                         }} />                      
             </Grid>                 
             <Grid item xs={12} sm={2}>            
-                <Button color="primary" variant="contained" type="button"
-                    onClick={ (e: any) => { callSubmit("manual"); } }>{formik.values.selectedSpendedTime == null ? "Incluir" : "Atualizar"}</Button>
+                <Button color="primary" variant="contained" type="button" disabled={props.disabled} 
+                    title={"Incluir/atualizar manualmente os horários despendidos"}
+                    onClick={ (e: any) => { callSubmit("manual"); } }>{formik.values.manualSelectedSpendedTime == null ? "Incluir" : "Atualizar"}</Button>
             </Grid> 
             <Grid item xs={12}>
                 <TableContainer component={Paper} className={classes.root}>                      
@@ -359,12 +381,13 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
                             <TableCell align="center">
                                 <Grid container>
                                     <Grid item xs={12} sm={6}>
-                                    <IconButton aria-label="edit" title="Editar tempo despendido" color="secondary" onClick={ () => editSpendedTime(row) }>
+                                    <IconButton aria-label="edit" title="Editar tempo despendido" color="secondary" disabled={props.disabled}
+                                        onClick={ () => editSpendedTime(row) }>
                                         <EditIcon />
                                     </IconButton> 
                                     </Grid>
                                     <Grid item xs={12} sm={6}>                                
-                                        <IconButton aria-label="delete" title="Excluir recurso" color="secondary" 
+                                        <IconButton aria-label="delete" title="Excluir recurso" color="secondary" disabled={props.disabled} 
                                             onClick={ () => alertDialog(row) }>
                                             <DeleteForeverIcon />
                                         </IconButton>

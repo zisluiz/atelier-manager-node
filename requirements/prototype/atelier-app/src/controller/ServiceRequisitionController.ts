@@ -77,27 +77,9 @@ export default class ServiceRequisitionController {
 
         this.paymentTypes = [ new PaymentType(1, "Dinheiro", 0.00), new PaymentType(2, "Cartão", 0.03)];
 
-        this.statusList = [ new Status(1, "Em andamento"), new Status(2, "Concluído"), new Status(3, "Pago")]
+        this.statusList = [ new Status(1, "Em andamento"), new Status(2, "Concluído")]
     }
     
-    public updateClothSteps(clothToUpdate:Cloth | null, steps: Step[]) {
-        if (!clothToUpdate)
-            return;
-
-        const persistedCloth = this.clothes.filter((cloth:Cloth) => cloth.id == clothToUpdate.id)[0];
-        persistedCloth.steps = steps;
-    }
-
-    public updateStepResources(stepToUpdate:Step | null, resources: Resource[]) {
-        if (!stepToUpdate)
-            return;
-
-        const persistedCloth = this.clothes.filter((cloth:Cloth) => cloth.steps && cloth.steps.filter((step:Step) => step.id == stepToUpdate.id))[0];
-        const persistedStep = persistedCloth.steps && persistedCloth.steps.filter((step:Step) => step.id == stepToUpdate.id)[0];
-
-        persistedStep.resources = resources;
-    }
-
     public createNewService() {
         return new Service(0, null, null, "", new Date(), 0.00, []);
     }
