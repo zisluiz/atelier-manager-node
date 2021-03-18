@@ -94,13 +94,13 @@ const ResourceDialog = (props:ResourceDialogProps) => {
                       error={formik.touched.name && Boolean(formik.errors.name)}
                       helperText={formik.touched.name && formik.errors.name}                                                       
                       variant="outlined"
-                      id="clothName"
+                      id="resourceName"
                       name="name"
                       label="Nome:"
                       fullWidth />
               </Grid>
               <Grid item xs={10}>
-                  <CurrencyRealInput id="resourcePrice" label="Custo (R$):"
+                  <CurrencyRealInput id="resourceCost" label="Custo (R$):"
                     required name="cost"
                     value={formik.values.cost}
                     onValueChange={ (values: any) => formik.setFieldValue('cost', values.floatValue) }

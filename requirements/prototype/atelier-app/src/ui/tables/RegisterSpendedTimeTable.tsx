@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef, useEffect} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import theme from 'src/theme';
 import Button from '@material-ui/core/Button';
@@ -96,13 +96,14 @@ interface RegisterSpendedTimeInputs {
 }
 
 const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
-    if (!props.clothInstances)    
+    if (!props.clothInstances)
         return null;
 
     const [spendTimeToRemove, setSpendTimeToRemove] = React.useState<SpendTime | null>(null);
     const [messageAlertDialog, setMessageAlertDialog] = React.useState("");
     const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false);
     const formRef = React.createRef<HTMLFormElement>();
+    const timer = useRef<NodeJS.Timeout | nul>(null); 
     const classes = useStyles();
     
     const formik = useFormik<RegisterSpendedTimeInputs>({    
@@ -240,10 +241,18 @@ const RegisterSpendedTime = (props:RegisterSpendedTimeProps) => {
     function callSubmit(type: string) {
         formik.setFieldValue("submitionType",type, false); //.then(...)
         //use promise when formik fix their api, promise when submitionType is setted (button click)
-        setTimeout(async function () {
+        timer.current = setTimeout(async function () {
             formik.handleSubmit();
         }, 100);
     }
+
+    useEffect(() => {
+        // clear timeout on component unmount
+        return () => {
+            if (timer.current)
+                clearInterval(timer.current);
+        };
+      }, []);    
 
     return(
         <>

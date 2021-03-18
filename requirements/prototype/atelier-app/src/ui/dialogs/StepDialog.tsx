@@ -73,7 +73,7 @@ const StepDialog = (props:StepDialogProps) => {
                       error={formik.touched.name && Boolean(formik.errors.name)}
                       helperText={formik.touched.name && formik.errors.name}                                                       
                       variant="outlined"
-                      id="clothName"
+                      id="stepName"
                       name="name"
                       label="Nome:"
                       fullWidth />

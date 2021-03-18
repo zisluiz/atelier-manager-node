@@ -39,7 +39,6 @@ import ExpenseTable from 'src/ui/tables/ExpenseTable';
 import { Revenue } from 'src/model/Revenue';
 import RevenueTable from '../tables/RevenueTable';
 import { Resource } from 'src/model/Resource';
-import Fieldset from 'src/ui/components/base/Fieldset';
 
 const useStyles = makeStyles({
   root: {
@@ -134,6 +133,10 @@ export default function ServiceExecutionForm(props: ServiceExecutionFormProps) {
       props.service.comments, props.service.deadline, props.service.price, clothes);
 
     showSnackAlert("Peças atualizadas com sucesso!", 'success');
+    
+    executionService.service = service;
+
+    executionService.updateInstancedClothes();
 
     props.handleServiceUpdate(service);
   }
@@ -157,34 +160,39 @@ function updateStepResources(stepToUpdate:Step | null, resources: Resource[]) {
 }   
 
   function updateSpendedTimes(spendedTimes: SpendTime[]) {
-    setExecutionService({...executionService, spendedTimes: spendedTimes});
+    updateExecutionService({...executionService, spendedTimes: spendedTimes});
   }
 
   function updateExpenses(expenses: Expense[]) {
-    setExecutionService({...executionService, expenses: expenses});
+    updateExecutionService({...executionService, expenses: expenses});
     showSnackAlert("Despesas atualizadas com sucesso!", 'success');
   }
 
   function updateRevenues(revenues: Revenue[]) {
-    setExecutionService({...executionService, revenues: revenues});
+    updateExecutionService({...executionService, revenues: revenues});
     showSnackAlert("Receitas atualizadas com sucesso!", 'success');
   }
 
   function completeService() {
-    setExecutionService({...executionService, status: props.controller.getStatusCompletedService()});
+    updateExecutionService({...executionService, status: props.controller.getStatusCompletedService()});
   }
 
   function payedService() {
-    setExecutionService({...executionService, payed: true});
+    updateExecutionService({...executionService, payed: true});
   } 
   
   function reopenService() {
-    setExecutionService({...executionService, status: props.controller.getStatusProgressService()});
+    updateExecutionService({...executionService, status: props.controller.getStatusProgressService()});
   }  
 
   function returnedService() {
-    setExecutionService({...executionService, status: props.controller.getStatusProgressService(), serviceReturned: true});
-  }   
+    updateExecutionService({...executionService, status: props.controller.getStatusProgressService(), serviceReturned: true});
+  }
+  
+  function updateExecutionService(executionService: any) {
+    setExecutionService(new ExecutionService(executionService.service, executionService.hourValue, executionService.instancedCloths, executionService.spendedTimes,
+      executionService.revenues, executionService.expenses, executionService.status, executionService.serviceReturned, executionService.payed));
+  }  
 
   function getPrecoBaseTotal() {
     let total = 0;
@@ -237,7 +245,7 @@ function updateStepResources(stepToUpdate:Step | null, resources: Resource[]) {
         moment(values.deadline, "yyyy-MM-DD").toDate(), values.price, props.service.clothes);
 
       props.handleServiceUpdate(changedService);
-      setExecutionService({...executionService, hourValue: values.hourValue, service: changedService});
+      updateExecutionService({...executionService, hourValue: values.hourValue, service: changedService});
       showSnackAlert("Serviço atualizado com sucesso!", "success");
     }
   });
