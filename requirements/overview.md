@@ -67,6 +67,7 @@ Campos:
 * Nome
 * Telefones
 * Endereço
+* Email
 ### 6. Requisição de serviço: 
 Haverá uma listagem de serviços, com filtro ativo por serviços em andamento/concluídos. Filtros adicionais: status (registrado, em andamento, concluído, pago), cliente, período, situação (todos, ativo, excluído).
 

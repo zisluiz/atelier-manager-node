@@ -8,8 +8,8 @@ import ServiceExecutionForm from 'src/ui/form/ServiceExecutionForm';
 
 export default function Home() {
   const [controller] = React.useState(new ServiceRequisitionController());
-  //const [service, setService] = React.useState<Service>(controller.createNewService());
-  const [service, setService] = React.useState<Service>(controller.createFilledService());
+  const [service, setService] = React.useState<Service>(controller.createNewService());
+  //const [service, setService] = React.useState<Service>(controller.createFilledService());
 
   function handleServiceUpdate(service:Service) {
     setService(service);
